@@ -9,3 +9,9 @@ firmware/test/test_golden
 firmware/test/test_golden.exe
 firmware/test/golden.bin
 *.o
+
+# 原生动态库（由 tools/build_native.py 生成）
+selfvoice/_native/
+*.dll
+*.so
+*.dylib

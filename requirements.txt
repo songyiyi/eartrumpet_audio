@@ -4,3 +4,7 @@
 # 与 CMSIS-DSP 固件逐样本一致，避免"仿真好听、上机不对"。
 # WAV 读写用标准库 wave 模块，不引入 soundfile。
 numpy>=1.24
+
+# 调参界面所需（命令行工具不需要）
+sounddevice>=0.4    # 实时音频回放
+matplotlib>=3.7     # 频响曲线
