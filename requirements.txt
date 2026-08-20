@@ -1,0 +1,6 @@
+# 刻意只依赖 numpy。
+#
+# 不用 scipy —— 双二阶滤波器与 RBJ 设计公式都自己实现，这样 PC 上的结果
+# 与 CMSIS-DSP 固件逐样本一致，避免"仿真好听、上机不对"。
+# WAV 读写用标准库 wave 模块，不引入 soundfile。
+numpy>=1.24
