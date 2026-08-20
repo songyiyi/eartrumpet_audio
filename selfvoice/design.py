@@ -24,7 +24,19 @@ def _finalize(b0: float, b1: float, b2: float,
     )
 
 
+#
+# 精度约定：所有设计运算一律在 double 下进行，只在最后 _finalize 时降为
+# float64 数组（随后由 BiquadCascade 转 float32）。
+#
+# 入参可能是 np.float32（参数结构体按固件的 float 存储），若不显式转成
+# Python float，numpy 的 NEP 50 弱提升规则会把整条运算链拉回 float32，
+# 与固件"float 存储、double 计算"的行为不符，主机对拍就会失败。
+# 固件侧 sv_design.c 同样是把入参 (double) 强转后再计算。
+
+
 def _omega(f0: float, fs: float) -> tuple[float, float, float]:
+    f0 = float(f0)
+    fs = float(fs)
     if not (0.0 < f0 < fs / 2.0):
         raise ValueError(f"截止频率 {f0} Hz 必须落在 (0, {fs / 2}) 内")
     w0 = 2.0 * math.pi * f0 / fs
@@ -32,6 +44,7 @@ def _omega(f0: float, fs: float) -> tuple[float, float, float]:
 
 
 def lowpass(f0: float, q: float, fs: float) -> np.ndarray:
+    q = float(q)
     w0, cos_w0, sin_w0 = _omega(f0, fs)
     alpha = sin_w0 / (2.0 * q)
     b0 = (1.0 - cos_w0) / 2.0
@@ -44,6 +57,7 @@ def lowpass(f0: float, q: float, fs: float) -> np.ndarray:
 
 
 def highpass(f0: float, q: float, fs: float) -> np.ndarray:
+    q = float(q)
     w0, cos_w0, sin_w0 = _omega(f0, fs)
     alpha = sin_w0 / (2.0 * q)
     b0 = (1.0 + cos_w0) / 2.0
@@ -57,6 +71,8 @@ def highpass(f0: float, q: float, fs: float) -> np.ndarray:
 
 def peaking(f0: float, q: float, gain_db: float, fs: float) -> np.ndarray:
     """峰值/陷波均衡。gain_db 为正即提升，为负即衰减。"""
+    q = float(q)
+    gain_db = float(gain_db)
     w0, cos_w0, sin_w0 = _omega(f0, fs)
     A = 10.0 ** (gain_db / 40.0)
     alpha = sin_w0 / (2.0 * q)
@@ -70,6 +86,8 @@ def peaking(f0: float, q: float, gain_db: float, fs: float) -> np.ndarray:
 
 
 def low_shelf(f0: float, q: float, gain_db: float, fs: float) -> np.ndarray:
+    q = float(q)
+    gain_db = float(gain_db)
     w0, cos_w0, sin_w0 = _omega(f0, fs)
     A = 10.0 ** (gain_db / 40.0)
     alpha = sin_w0 / (2.0 * q)
@@ -84,6 +102,8 @@ def low_shelf(f0: float, q: float, gain_db: float, fs: float) -> np.ndarray:
 
 
 def high_shelf(f0: float, q: float, gain_db: float, fs: float) -> np.ndarray:
+    q = float(q)
+    gain_db = float(gain_db)
     w0, cos_w0, sin_w0 = _omega(f0, fs)
     A = 10.0 ** (gain_db / 40.0)
     alpha = sin_w0 / (2.0 * q)

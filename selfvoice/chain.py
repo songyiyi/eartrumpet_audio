@@ -22,6 +22,14 @@ from . import design
 from .biquad import BiquadCascade
 from .params import ChainParams
 
+# 气导路搁架滤波器的 Q。
+#
+# 必须是 float32：固件里写的是 0.707f，其数值为 0.70700001716613770，
+# 而 Python 的字面量 0.707 是 double，为 0.70699999999999996。两者不同，
+# 会导致气导路系数有约 1e-7 的偏差 —— 对拍测试正是靠这个量级的差异
+# 把它揪出来的（差异恰好从延迟长度之后的样本开始出现）。
+_SHELF_Q = np.float32(0.707)
+
 
 class DelayLine:
     """整数样本延迟线。
@@ -57,13 +65,20 @@ class PeakLimiter:
 
     def __init__(self, threshold_db: float, attack_ms: float,
                  release_ms: float, fs: float) -> None:
-        self.threshold = 10.0 ** (threshold_db / 20.0)
-        self.att = math.exp(-1.0 / (max(attack_ms, 1e-3) * 1e-3 * fs))
-        self.rel = math.exp(-1.0 / (max(release_ms, 1e-3) * 1e-3 * fs))
+        # 系数按 double 推导一次，随后一律降为 float32。
+        # 刻意统一精度：固件里全程是 float，若这里混用 double 与 float32，
+        # C 实现就永远无法与 Python 逐位一致，对拍验证也就失去意义。
+        self.threshold = np.float32(10.0 ** (float(threshold_db) / 20.0))
+        self.att = np.float32(
+            math.exp(-1.0 / (max(float(attack_ms), 1e-3) * 1e-3 * float(fs)))
+        )
+        self.rel = np.float32(
+            math.exp(-1.0 / (max(float(release_ms), 1e-3) * 1e-3 * float(fs)))
+        )
         self.reset()
 
     def reset(self) -> None:
-        self.gain = 1.0
+        self.gain = np.float32(1.0)
         self.reduction_db = 0.0  # 最近一次处理的最大增益衰减，便于监看
 
     def process(self, x) -> np.ndarray:
@@ -72,21 +87,22 @@ class PeakLimiter:
         g = self.gain
         thr = self.threshold
         att, rel = self.att, self.rel
-        min_g = 1.0
+        one = np.float32(1.0)
+        min_g = one
 
         for n in range(xin.shape[0]):
             v = xin[n]
             mag = abs(v)
-            target = thr / mag if mag > thr else 1.0
+            target = np.float32(thr / mag) if mag > thr else one
             # 需要压下去时用 attack，放回来时用 release
             coef = att if target < g else rel
-            g = coef * g + (1.0 - coef) * target
+            g = np.float32(coef * g + (one - coef) * target)
             out[n] = v * g
             if g < min_g:
                 min_g = g
 
         self.gain = g
-        self.reduction_db = 20.0 * math.log10(max(min_g, 1e-6))
+        self.reduction_db = 20.0 * math.log10(max(float(min_g), 1e-6))
         return out
 
 
@@ -116,14 +132,14 @@ class SelfVoiceChain:
         self.bone_filter = BiquadCascade(np.concatenate(bone_stages))
 
         air_stages: list[np.ndarray] = [
-            design.low_shelf(p.air.mouth_to_ear_low_shelf_hz, 0.707,
+            design.low_shelf(p.air.mouth_to_ear_low_shelf_hz, _SHELF_Q,
                              p.air.mouth_to_ear_low_shelf_db, fs),
-            design.high_shelf(p.air.mouth_to_ear_high_shelf_hz, 0.707,
+            design.high_shelf(p.air.mouth_to_ear_high_shelf_hz, _SHELF_Q,
                               p.air.mouth_to_ear_high_shelf_db, fs),
         ]
         if p.air.proximity_comp_enabled:
             air_stages.append(
-                design.low_shelf(p.air.proximity_comp_hz, 0.707,
+                design.low_shelf(p.air.proximity_comp_hz, _SHELF_Q,
                                  p.air.proximity_comp_db, fs)
             )
         self.air_filter = BiquadCascade(np.concatenate(air_stages))
@@ -134,9 +150,13 @@ class SelfVoiceChain:
         self.limiter = PeakLimiter(p.limiter.threshold_db, p.limiter.attack_ms,
                                    p.limiter.release_ms, fs)
 
-        self.bone_gain = np.float32(10.0 ** (p.bone.gain_db / 20.0))
-        self.air_gain = np.float32(10.0 ** (p.air.gain_db / 20.0))
-        self.output_gain = np.float32(10.0 ** (p.output_gain_db / 20.0))
+        # float() 强转的理由同 design.py：dB 值可能是 np.float32，若不转成
+        # double，10**x 会退化到 float32 精度计算，而固件 sv_chain.c 的
+        # db_to_lin() 是 (float)pow(10.0, (double)db/20.0) —— 双精度算完再降
+        # 一次。舍入点不同，对拍就会失败。
+        self.bone_gain = np.float32(10.0 ** (float(p.bone.gain_db) / 20.0))
+        self.air_gain = np.float32(10.0 ** (float(p.air.gain_db) / 20.0))
+        self.output_gain = np.float32(10.0 ** (float(p.output_gain_db) / 20.0))
 
     def reset(self) -> None:
         self.bone_filter.reset()

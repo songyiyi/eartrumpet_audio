@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import numpy as np
+
 SPEED_OF_SOUND = 343.0  # m/s，20°C 干燥空气
 
 
@@ -130,12 +132,26 @@ class ChainParams:
 # 设计原则见方案第 09 节：不是一个参数一个旋钮。三个旋钮中有两个是宏控制，
 # 沿预先设计好的曲线同时移动多个参数。
 
+#
+# 精度约定：旋钮映射的中间运算一律走 float32。
+#
+# 固件的参数结构体存的是 C 的 float，映射也在 float 里算；若这里用 double，
+# 送进滤波器设计公式的数值会与固件有微小差异，主机对拍就永远无法逐位一致。
+# 参考实现的价值就在于精确模拟固件，所以这里向固件看齐，而不是反过来。
+
+_f32 = np.float32
+
+
+def _clamp01(position: float) -> np.float32:
+    return _f32(min(max(float(position), 0.0), 1.0))
+
+
 def apply_mix_knob(params: ChainParams, position: float) -> ChainParams:
     """混合比旋钮：0.0 = 纯气导，1.0 = 纯骨导。
 
     直接映射到 bone_ratio。这个旋钮语义清晰，不需要做成宏控制。
     """
-    params.bone_ratio = float(min(max(position, 0.0), 1.0))
+    params.bone_ratio = _clamp01(position)
     return params
 
 
@@ -146,22 +162,22 @@ def apply_tone_knob(params: ChainParams, position: float) -> ChainParams:
     产品调音的核心，需要在阶段 1 用多人实测数据重新拟合。当前实现是线性
     插值的占位版本。
     """
-    p = float(min(max(position, 0.0), 1.0))
-    t = (p - 0.5) * 2.0  # 映射到 -1 .. +1
+    pos = _clamp01(position)
+    t = _f32((pos - _f32(0.5)) * _f32(2.0))  # 映射到 -1 .. +1
 
     params.bone.eq = [
         # 中低频厚度：向"厚"转时提升更多
-        (300.0, 0.8, 3.0 + 3.0 * t),
+        (_f32(300.0), _f32(0.8), _f32(_f32(3.0) + _f32(3.0) * t)),
         # 浑浊带：向"厚"转时衰减减少（保留更多中频）
-        (1200.0, 1.0, -2.0 + 1.5 * t),
+        (_f32(1200.0), _f32(1.0), _f32(_f32(-2.0) + _f32(1.5) * t)),
     ]
     # 向"薄亮"转时把骨导低通开高一点，让骨导路多带一些高频
-    params.bone.lp_hz = 3000.0 - 600.0 * t
+    params.bone.lp_hz = _f32(_f32(3000.0) - _f32(600.0) * t)
     return params
 
 
 def apply_output_knob(params: ChainParams, position: float) -> ChainParams:
     """输出电平旋钮：0.0 = -40 dB，1.0 = +12 dB，0.75 处约为 0 dB。"""
-    p = float(min(max(position, 0.0), 1.0))
-    params.output_gain_db = -40.0 + 52.0 * p
+    pos = _clamp01(position)
+    params.output_gain_db = _f32(_f32(-40.0) + _f32(52.0) * pos)
     return params

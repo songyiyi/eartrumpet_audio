@@ -3,3 +3,9 @@ out/
 __pycache__/
 *.pyc
 *.wav
+
+# 固件构建产物
+firmware/test/test_golden
+firmware/test/test_golden.exe
+firmware/test/golden.bin
+*.o
