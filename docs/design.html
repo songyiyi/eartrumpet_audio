@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自声还原演出设备</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --ground:#F3F5F6;
+  --surface:#FFFFFF;
+  --surface-2:#E9EEF0;
+  --ink:#11171A;
+  --ink-soft:#55636A;
+  --ink-faint:#8A969C;
+  --rule:#D8E0E3;
+  --rule-soft:#E7ECEE;
+  --bone:#A96B25;
+  --bone-tint:#F5E9D8;
+  --air:#1F6E80;
+  --air-tint:#DCEBEF;
+  --warn:#A8382B;
+  --warn-tint:#F7E4E1;
+  --shadow:0 1px 2px rgba(17,23,26,.05);
+
+  --f-disp:"Barlow Semi Condensed","Noto Sans SC",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono","Noto Sans SC",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1113;
+    --surface:#151B1E;
+    --surface-2:#1D2529;
+    --ink:#E3EAEC;
+    --ink-soft:#94A3A9;
+    --ink-faint:#6A787E;
+    --rule:#273136;
+    --rule-soft:#1E262A;
+    --bone:#DCA25C;
+    --bone-tint:#332818;
+    --air:#5FB9C8;
+    --air-tint:#133037;
+    --warn:#E58370;
+    --warn-tint:#33201C;
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1113;
+  --surface:#151B1E;
+  --surface-2:#1D2529;
+  --ink:#E3EAEC;
+  --ink-soft:#94A3A9;
+  --ink-faint:#6A787E;
+  --rule:#273136;
+  --rule-soft:#1E262A;
+  --bone:#DCA25C;
+  --bone-tint:#332818;
+  --air:#5FB9C8;
+  --air-tint:#133037;
+  --warn:#E58370;
+  --warn-tint:#33201C;
+  --shadow:0 1px 2px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.68;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px 96px}
+.prose{max-width:70ch}
+
+/* ---------- header ---------- */
+header.masthead{
+  padding:64px 0 40px;
+  border-bottom:2px solid var(--ink);
+}
+.eyebrow{
+  font-family:var(--f-disp);
+  font-size:13px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint);
+  margin:0 0 18px;
+}
+h1{
+  font-family:var(--f-body);
+  font-weight:600;
+  font-size:clamp(34px,5.4vw,50px);
+  line-height:1.14;
+  letter-spacing:-.015em;
+  margin:0 0 18px;
+  text-wrap:balance;
+}
+.standfirst{
+  font-size:18px;
+  line-height:1.6;
+  color:var(--ink-soft);
+  max-width:62ch;
+  margin:0;
+}
+.meta{
+  display:flex;flex-wrap:wrap;gap:0;
+  margin-top:36px;
+  border-top:1px solid var(--rule);
+}
+.meta div{
+  flex:1 1 170px;
+  padding:16px 20px 14px 0;
+  border-right:1px solid var(--rule-soft);
+}
+.meta div:last-child{border-right:0}
+.meta dt{
+  font-family:var(--f-disp);
+  font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);
+  margin:0 0 4px;
+}
+.meta dd{margin:0;font-size:15px;font-weight:500}
+
+/* ---------- contents ---------- */
+nav.toc{
+  margin:40px 0 8px;
+  padding:24px 0 4px;
+  border-bottom:1px solid var(--rule);
+}
+nav.toc .eyebrow{margin-bottom:14px}
+nav.toc ol{
+  list-style:none;margin:0;padding:0;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:2px 28px;
+}
+nav.toc a{
+  display:flex;gap:12px;align-items:baseline;
+  padding:7px 0;
+  color:var(--ink);text-decoration:none;
+  border-bottom:1px solid transparent;
+}
+nav.toc a:hover,nav.toc a:focus-visible{border-bottom-color:var(--ink-faint)}
+nav.toc .n{
+  font-family:var(--f-mono);font-size:12px;
+  color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- sections ---------- */
+section{padding:52px 0 8px;border-top:1px solid var(--rule);margin-top:44px}
+section:first-of-type{border-top:0}
+.sec-head{display:flex;gap:16px;align-items:baseline;margin-bottom:24px}
+.sec-head .n{
+  font-family:var(--f-mono);font-size:13px;font-weight:500;
+  color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+  padding-top:4px;
+}
+h2{
+  font-family:var(--f-body);font-weight:600;
+  font-size:26px;line-height:1.25;letter-spacing:-.01em;
+  margin:0;text-wrap:balance;
+}
+h3{
+  font-family:var(--f-body);font-weight:600;
+  font-size:17px;line-height:1.4;
+  margin:34px 0 10px;
+}
+h4{
+  font-family:var(--f-disp);font-weight:600;
+  font-size:13px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-faint);
+  margin:28px 0 10px;
+}
+p{margin:0 0 15px}
+ul,ol.list{margin:0 0 15px;padding-left:20px}
+li{margin-bottom:7px}
+strong{font-weight:600}
+code{
+  font-family:var(--f-mono);font-size:.87em;
+  background:var(--surface-2);
+  padding:1px 5px;border-radius:3px;
+}
+a{color:var(--air)}
+
+/* ---------- diagram ---------- */
+.figure{margin:8px 0 30px}
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.figure svg{display:block;min-width:940px;width:100%;height:auto}
+.caption{
+  font-size:13.5px;color:var(--ink-soft);
+  margin-top:12px;max-width:68ch;
+}
+.legend{display:flex;flex-wrap:wrap;gap:22px;margin:0 0 16px}
+.legend span{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--f-disp);font-size:13px;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;
+}
+.legend i{width:22px;height:3px;border-radius:2px;display:block}
+
+/* ---------- tables ---------- */
+.tbl{overflow-x:auto;margin:0 0 22px;-webkit-overflow-scrolling:touch}
+table{
+  border-collapse:collapse;width:100%;min-width:520px;
+  font-size:14.5px;
+}
+caption{
+  text-align:left;
+  font-family:var(--f-disp);font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);
+  padding-bottom:10px;
+}
+th{
+  font-family:var(--f-disp);font-size:12.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-soft);
+  text-align:left;
+  padding:0 16px 9px 0;
+  border-bottom:1.5px solid var(--ink);
+  white-space:nowrap;
+}
+td{
+  padding:11px 16px 11px 0;
+  border-bottom:1px solid var(--rule-soft);
+  vertical-align:top;
+  font-variant-numeric:tabular-nums;
+}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:1px solid var(--rule)}
+.num{font-family:var(--f-mono);font-size:13.5px}
+.yes{color:var(--air);font-weight:600}
+.no{color:var(--warn);font-weight:600}
+
+/* ---------- callouts ---------- */
+.note{
+  border-left:3px solid var(--ink-faint);
+  background:var(--surface);
+  padding:16px 20px;
+  margin:0 0 22px;
+  box-shadow:var(--shadow);
+}
+.note p:last-child{margin-bottom:0}
+.note .lbl{
+  font-family:var(--f-disp);font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);
+  display:block;margin-bottom:6px;
+}
+.note.bone{border-left-color:var(--bone);background:var(--bone-tint)}
+.note.bone .lbl{color:var(--bone)}
+.note.air{border-left-color:var(--air);background:var(--air-tint)}
+.note.air .lbl{color:var(--air)}
+.note.warn{border-left-color:var(--warn);background:var(--warn-tint)}
+.note.warn .lbl{color:var(--warn)}
+
+/* ---------- key pick ---------- */
+.picks{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:1px;
+  background:var(--rule);
+  border:1px solid var(--rule);
+  margin:0 0 26px;
+}
+.pick{background:var(--surface);padding:18px 20px 20px}
+.pick .role{
+  font-family:var(--f-disp);font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);margin:0 0 7px;
+}
+.pick .part{
+  font-family:var(--f-mono);font-size:16px;font-weight:500;
+  margin:0 0 6px;letter-spacing:-.01em;
+}
+.pick .why{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin:0}
+
+/* ---------- phases ---------- */
+.phases{margin:0;padding:0;list-style:none;counter-reset:ph -1}
+.phase{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:22px;
+  padding:22px 0;
+  border-top:1px solid var(--rule-soft);
+}
+.phase:first-child{border-top:0}
+.phase .tag{
+  font-family:var(--f-mono);font-size:12px;
+  color:var(--ink-faint);
+  padding-top:3px;
+  font-variant-numeric:tabular-nums;
+}
+.phase h3{margin:0 0 6px;font-size:16px}
+.phase p{margin:0 0 8px;font-size:14.5px;color:var(--ink-soft)}
+.phase .gate{
+  font-size:13.5px;
+  padding:9px 14px;
+  background:var(--surface-2);
+  border-left:2px solid var(--bone);
+  margin-top:10px;
+}
+.phase .gate b{font-family:var(--f-disp);letter-spacing:.1em;text-transform:uppercase;font-size:11.5px;color:var(--bone)}
+
+/* ---------- footer ---------- */
+footer{
+  margin-top:56px;padding-top:26px;
+  border-top:1px solid var(--rule);
+  font-size:13.5px;color:var(--ink-soft);
+}
+footer h4{margin-top:0}
+footer ul{padding-left:18px}
+footer li{margin-bottom:5px}
+
+@media (max-width:640px){
+  .wrap{padding:0 18px 72px}
+  header.masthead{padding-top:44px}
+  .meta div{flex:1 1 100%;border-right:0;border-bottom:1px solid var(--rule-soft);padding-right:0}
+  .meta div:last-child{border-bottom:0}
+  .sec-head{gap:12px}
+  .phase{grid-template-columns:1fr;gap:6px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:focus-visible{outline:2px solid var(--air);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">硬件设计方案 · Rev. 2</p>
+  <h1>自声还原演出设备</h1>
+  <p class="standfirst">通过骨导与气导双通道实时采集，重建演唱者"自己听到的那个声音"，经设备内部处理后直接输出至调音台。面向现场演出，非录音用途。</p>
+  <dl class="meta">
+    <div><dt>定位</dt><dd>演出实时设备</dd></div>
+    <div><dt>形态</dt><dd>头戴组件 + 腰包</dd></div>
+    <div><dt>音频规格</dt><dd>48 kHz · 24 bit</dd></div>
+    <div><dt>输出</dt><dd>麦克风电平 / XLR</dd></div>
+    <div><dt>延迟目标</dt><dd>≈ 1 ms</dd></div>
+    <div><dt>控制</dt><dd>面板旋钮，无需 App</dd></div>
+  </dl>
+</header>
+
+<nav class="toc">
+  <p class="eyebrow">目录</p>
+  <ol>
+    <li><a href="#s1"><span class="n">01</span><span>原理与可行性边界</span></a></li>
+    <li><a href="#s2"><span class="n">02</span><span>系统架构</span></a></li>
+    <li><a href="#s3"><span class="n">03</span><span>核心器件选型</span></a></li>
+    <li><a href="#s4"><span class="n">04</span><span>采样率与位深</span></a></li>
+    <li><a href="#s5"><span class="n">05</span><span>主控决策</span></a></li>
+    <li><a href="#s6"><span class="n">06</span><span>DSP 处理链</span></a></li>
+    <li><a href="#s7"><span class="n">07</span><span>延迟预算</span></a></li>
+    <li><a href="#s8"><span class="n">08</span><span>传感器摆位</span></a></li>
+    <li><a href="#s9"><span class="n">09</span><span>人机界面</span></a></li>
+    <li><a href="#s10"><span class="n">10</span><span>演出场景专项</span></a></li>
+    <li><a href="#s11"><span class="n">11</span><span>处理边界划分</span></a></li>
+    <li><a href="#s12"><span class="n">12</span><span>分阶段开发计划</span></a></li>
+    <li><a href="#s13"><span class="n">13</span><span>待验证问题</span></a></li>
+  </ol>
+</nav>
+
+<!-- 01 -->
+<section id="s1">
+  <div class="sec-head"><span class="n">01</span><h2>原理与可行性边界</h2></div>
+  <div class="prose">
+    <p>人说话或唱歌时听到的自己 = <strong>气导声</strong>（嘴 → 空气 → 耳朵，也就是别人和录音听到的）+ <strong>骨导声</strong>（声带与颅骨振动直接传至耳蜗）。骨导路径额外贡献中低频能量，这就是"自己听自己更厚、录音更薄"的原因。</p>
+    <p>这个模型有直接的学术支撑：von Békésy 早在 1949 年就估计说话时骨导与气导的贡献大致相等；后续研究用堵耳与掩蔽法实测，骨导贡献在 0.5–2 kHz 区间与气导相当，不同音素间约有 ±10 dB 浮动。</p>
+    <h3>能做到什么，做不到什么</h3>
+    <p>贴在皮肤表面的传感器测到的振动，<strong>不等于</strong>耳蜗实际感受到的骨导声——中间隔着一个因人而异、无法直接测量的颅骨传递函数。</p>
+    <p>所以这个项目在工程上不是"物理还原"，而是<strong>用可调 EQ 与混合比去逼近，由本人主观校准到"对，这就是我听到的自己"为止</strong>。对本项目的目标（让观众听到演唱者听到的声音）而言，主观校准就是终点，这个精度完全够用。</p>
+  </div>
+  <div class="note bone">
+    <span class="lbl">项目的不可替代性</span>
+    <p>骨导重建只能在设备内部完成，因为<strong>只有这台设备拿得到骨导信号</strong>。调音台无论多高级都做不了这件事。这是产品价值的根基，也决定了后面第 11 节的处理边界划分。</p>
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="s2">
+  <div class="sec-head"><span class="n">02</span><h2>系统架构</h2></div>
+  <div class="legend">
+    <span><i style="background:var(--bone)"></i>骨导通路</span>
+    <span><i style="background:var(--air)"></i>气导通路</span>
+    <span><i style="background:var(--ink)"></i>合并后</span>
+  </div>
+  <div class="figure">
+    <div class="scroller">
+      <svg viewBox="0 0 1040 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="信号流框图：骨导通路经高通、补偿 EQ、低通、延迟对齐后，与经嘴到耳补偿和近讲补偿的气导通路汇合，再经混合限幅、DAC、输出级送至调音台。">
+        <defs>
+          <marker id="ab" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--bone)"/></marker>
+          <marker id="aa" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--air)"/></marker>
+          <marker id="ak" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--ink)"/></marker>
+        </defs>
+
+        <text x="16" y="34" font-family="Barlow Semi Condensed, sans-serif" font-size="13" font-weight="600" letter-spacing="1.6" fill="var(--bone)">BONE · 骨导通路</text>
+        <text x="16" y="266" font-family="Barlow Semi Condensed, sans-serif" font-size="13" font-weight="600" letter-spacing="1.6" fill="var(--air)">AIR · 气导通路</text>
+
+        <!-- bone row -->
+        <g fill="var(--surface)" stroke="var(--bone)" stroke-width="1.5">
+          <rect x="16"  y="52" width="140" height="46" rx="3"/>
+          <rect x="180" y="52" width="104" height="46" rx="3"/>
+          <rect x="308" y="52" width="104" height="46" rx="3"/>
+          <rect x="436" y="52" width="104" height="46" rx="3"/>
+        </g>
+        <g font-family="IBM Plex Sans, Noto Sans SC, sans-serif" font-size="13.5" fill="var(--ink)" text-anchor="middle">
+          <text x="86"  y="72">骨导传感器</text><text x="86"  y="88" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--ink-soft)">V2S200D</text>
+          <text x="232" y="80">高通 80 Hz</text>
+          <text x="360" y="80">补偿 EQ</text>
+          <text x="488" y="80">低通 3 kHz</text>
+        </g>
+        <g stroke="var(--bone)" stroke-width="1.5" fill="none" marker-end="url(#ab)">
+          <path d="M156,75 H174"/><path d="M284,75 H302"/><path d="M412,75 H430"/>
+        </g>
+
+        <!-- air row -->
+        <g fill="var(--surface)" stroke="var(--air)" stroke-width="1.5">
+          <rect x="16"  y="202" width="140" height="46" rx="3"/>
+          <rect x="180" y="202" width="132" height="46" rx="3"/>
+          <rect x="336" y="202" width="124" height="46" rx="3"/>
+          <rect x="484" y="202" width="124" height="46" rx="3"/>
+        </g>
+        <g font-family="IBM Plex Sans, Noto Sans SC, sans-serif" font-size="13.5" fill="var(--ink)" text-anchor="middle">
+          <text x="86"  y="222">气导麦克风</text><text x="86" y="238" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--ink-soft)">IM69D130</text>
+          <text x="246" y="230">嘴 → 耳 补偿</text>
+          <text x="398" y="230">近讲效应补偿</text>
+          <text x="546" y="222">延迟对齐</text><text x="546" y="238" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--ink-soft)">+423 µs</text>
+        </g>
+        <g stroke="var(--air)" stroke-width="1.5" fill="none" marker-end="url(#aa)">
+          <path d="M156,225 H174"/><path d="M312,225 H330"/><path d="M460,225 H478"/>
+        </g>
+
+        <!-- converge -->
+        <path d="M540,75 H700 C716,75 732,150 748,150" stroke="var(--bone)" stroke-width="1.5" fill="none" marker-end="url(#ab)"/>
+        <path d="M608,225 H700 C716,225 732,150 748,150" stroke="var(--air)" stroke-width="1.5" fill="none" marker-end="url(#aa)"/>
+
+        <!-- output chain -->
+        <g fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5">
+          <rect x="756" y="127" width="104" height="46" rx="3"/>
+          <rect x="884" y="127" width="72"  height="46" rx="3"/>
+        </g>
+        <g font-family="IBM Plex Sans, Noto Sans SC, sans-serif" font-size="13.5" fill="var(--ink)" text-anchor="middle">
+          <text x="808" y="146">混合 + 限幅</text><text x="808" y="163" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--ink-soft)">MIX Σ</text>
+          <text x="920" y="146">DAC</text><text x="920" y="163" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--ink-soft)">+ 输出级</text>
+        </g>
+        <g stroke="var(--ink)" stroke-width="1.5" fill="none" marker-end="url(#ak)">
+          <path d="M860,150 H878"/><path d="M956,150 H1000"/>
+        </g>
+        <text x="1004" y="146" font-family="Barlow Semi Condensed, sans-serif" font-size="13" font-weight="600" letter-spacing="1.2" fill="var(--ink-soft)">XLR</text>
+        <text x="1004" y="162" font-family="IBM Plex Sans, Noto Sans SC, sans-serif" font-size="11.5" fill="var(--ink-faint)">调音台</text>
+      </svg>
+    </div>
+    <p class="caption">两路传感器挂在同一条 PDM 总线上（左/右声道），因此在硬件层面天然采样同步。延迟补偿加在<strong>气导路</strong>：本人体验中骨导几乎瞬时到达耳蜗，而气导声要绕过面部传到自己耳道，麦克风在嘴外 2.5 cm 就拾到了信号，比耳朵早约 423 µs。详见第 06 节。</p>
+  </div>
+
+  <h4>物理形态</h4>
+  <div class="prose">
+    <p>头戴组件（骨导探头 + 气导麦，一根线引出）→ 腰包（主控、电池、旋钮）→ XLR 出线至调音台，或直接插入标准无线腰包发射器以获得移动自由度。</p>
+    <p>从调音师的视角看，这就是<strong>一支音色特别的麦克风</strong>，插进普通话筒通道即可，无需了解内部结构。</p>
+  </div>
+</section>
+
+<!-- 03 -->
+<section id="s3">
+  <div class="sec-head"><span class="n">03</span><h2>核心器件选型</h2></div>
+
+  <div class="picks">
+    <div class="pick"><p class="role">骨导</p><p class="part">Knowles V2S200D</p><p class="why">原生振动传感器，PDM 输出。±25 g 量程是唱歌场景的关键。</p></div>
+    <div class="pick"><p class="role">气导</p><p class="part">Infineon IM69D130</p><p class="why">AOP 130 dB SPL，相位容差仅 ±2°，两路相干叠加的前提。</p></div>
+    <div class="pick"><p class="role">主控</p><p class="part">STM32H750 / H743</p><p class="why">DFSDM 硬件解码 PDM，24 bit 输出，实时确定性满足演出可靠性要求。</p></div>
+    <div class="pick"><p class="role">输出</p><p class="part">PCM5102A</p><p class="why">免配置 I²S DAC，FLT 引脚可选低延迟滤波模式。</p></div>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>骨导传感器 · Knowles V2S200D</caption>
+      <thead><tr><th>参数</th><th>值</th><th>对本项目的意义</th></tr></thead>
+      <tbody>
+        <tr><td>输出</td><td class="num">PDM（支持 stereo）</td><td>可与气导麦共用一条数据线，硬件级同步</td></tr>
+        <tr><td>SNR</td><td class="num">64.5 dB</td><td>轻声演唱亦足够干净</td></tr>
+        <tr><td>带宽</td><td class="num">10 kHz</td><td>远超需求——瓶颈是皮肤对 4 kHz 以上的衰减，非传感器</td></tr>
+        <tr><td>量程</td><td class="num">±25 g @10% THD</td><td><strong>关键指标。</strong>唱歌时颅骨振动远大于说话，余量充足</td></tr>
+        <tr><td>供电</td><td class="num">1.8 V / 700 µA（低功耗 290 µA）</td><td>电池供电友好</td></tr>
+        <tr><td>尺寸</td><td class="num">3.30 × 2.30 × 0.93 mm</td><td>V2S200DZ 薄型版仅 0.7 mm</td></tr>
+        <tr><td>声学隔离</td><td class="num">50 dB</td><td>几乎不拾环境声 → 抗啸叫的结构性优势</td></tr>
+        <tr><td>采购</td><td class="num">≈ $4.09 单片 / $2.73 @1k</td><td>DigiKey 现货，个人可小批量购买</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">关于 Sonion VPU</span>
+    <p>Sonion 的 VPU 是同类骨导拾音方案（在 MEMS 麦声孔上叠质量-弹簧振膜），但<strong>完整参数在 NDA 之后，且走耳机大厂设计导入渠道</strong>，个人或小批量项目基本无法采购。V2S200D 在可获得性上是决定性优势。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>气导麦克风 · Infineon IM69D130</caption>
+      <thead><tr><th>参数</th><th>值</th><th>对本项目的意义</th></tr></thead>
+      <tbody>
+        <tr><td>AOP</td><td class="num">130 dB SPL</td><td><strong>关键指标。</strong>近距离演唱轻松打到 110–120 dB，普通 MEMS（AOP ≈120 dB）会削波</td></tr>
+        <tr><td>THD</td><td class="num">&lt;1% @128 dB SPL</td><td>大声演唱不发糊</td></tr>
+        <tr><td>SNR</td><td class="num">69 dB(A)</td><td>动态范围 105 dB</td></tr>
+        <tr><td>灵敏度</td><td class="num">−36 dBFS ±1 dB</td><td>一致性好，换片不必重新校准</td></tr>
+        <tr><td>相位容差</td><td class="num">±2°</td><td><strong>被低估的关键指标。</strong>两路相干信号叠加时，相位散布直接变成不可控的梳状滤波</td></tr>
+        <tr><td>低频滚降</td><td class="num">28 Hz</td><td>全频段留得住</td></tr>
+        <tr><td>群延迟</td><td class="num">6 µs @1 kHz</td><td>可忽略</td></tr>
+        <tr><td>其他</td><td class="num">980 µA / 1.62–3.6 V / 4.0 × 3.0 × 1.2 mm</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="s4">
+  <div class="sec-head"><span class="n">04</span><h2>采样率与位深</h2></div>
+  <div class="prose">
+    <p>这两个参数的最优解不是"越高越好"，而是由两颗传感器的物理极限倒推出来的。<strong>整个系统的音质天花板由传感器决定</strong>（骨导 64.5 dB SNR、气导 69 dB(A) SNR），转换链路的唯一任务是<strong>不要拖后腿</strong>。</p>
+  </div>
+
+  <div class="picks">
+    <div class="pick"><p class="role">采样率</p><p class="part">48 kHz</p><p class="why">覆盖气导全频段；骨导传感器本身只有 10 kHz 带宽。</p></div>
+    <div class="pick"><p class="role">采集位深</p><p class="part">24 bit</p><p class="why">硬性要求，非奢侈配置。两条独立理由见下。</p></div>
+    <div class="pick"><p class="role">内部运算</p><p class="part">32-bit float</p><p class="why">8 级 biquad 级联 + 骨导补增益，浮点免去全部增益结构烦恼。</p></div>
+    <div class="pick"><p class="role">PDM 时钟</p><p class="part">3.072 MHz</p><p class="why">= 48 kHz × 64，也是 IM69D130 指标的测试条件。</p></div>
+  </div>
+
+  <h3>位深：24 bit 是硬性要求</h3>
+  <div class="prose">
+    <p>有两条<strong>互相独立</strong>的理由，任何一条单独成立都足以排除 16 bit。</p>
+  </div>
+
+  <div class="note air">
+    <span class="lbl">理由一 · 气导麦（厂商明文）</span>
+    <p>Infineon 在自家技术文档里写得很直白：<strong>IM69D130 用在 16 bit 音频链路里，其完整 SNR 性能无法实现</strong>，因为噪声底会被系统动态范围限制住。该器件的动态范围是 <strong>105 dB</strong>，而 16 bit 的理论上限只有 96 dB。</p>
+    <p style="margin-top:10px">最有力的旁证是：Infineon <strong>专门做了另一个型号 IM69D120</strong>，就是为了在 16 bit 系统里保住 69 dB(A) 的 SNR。官方建议是——若同时需要高 AOP 与高 SNR，<strong>必须使用 20 bit 或 24 bit 的信号链</strong>。</p>
+  </div>
+
+  <div class="note bone">
+    <span class="lbl">理由二 · 骨导传感器（增益结构）</span>
+    <p>V2S200D 用户指南指出，其输出需要<strong>补约 20 dB 增益</strong>才能与标准 −26 dBFS 的 PDM 麦克风电平对齐。也就是说骨导信号在数字域里天然偏低，必须施加数字增益。</p>
+    <p style="margin-top:10px">在 16 bit 下，这 20 dB 相当于<strong>折掉三位多</strong>，有效位深只剩约 13 bit（≈78 dB）；再扣除必要的峰值余量后，已经逼近传感器自身 64.5 dB 的 SNR。<strong>而且补增益时量化噪声会被一起放大。</strong></p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">这条独立地锁定了主控</span>
+    <p><strong>ESP32-S3 的 PDM RX 只支持 16 bit。</strong>选定 IM69D130 + V2S200D 就等于选定 24 bit，也就等于选定 STM32——DFSDM 的输出正好是 <strong>24 bit 有符号整数</strong>（内部按 32 bit 运算）。</p>
+    <p style="margin-top:10px">这意味着第 05 节的主控结论从"倾向"升级为"<strong>必须</strong>"：两条独立的推理线索指向同一颗芯片。若坚持用 ESP32-S3，唯一出路是把气导麦降级为 IM69D120——但型号命名暗示其 AOP 为 120 dB SPL（需查证），正好牺牲掉近距离演唱最需要的那部分余量。</p>
+  </div>
+
+  <h3>采样率：48 kHz，96 kHz 买不到任何东西</h3>
+  <div class="prose">
+    <p>决定性事实是：<strong>V2S200D 的带宽只有 10 kHz，而我们还要把它低通到约 3 kHz。</strong>骨导通路在物理上就不存在任何 96 kHz 能多捕捉到的内容。</p>
+    <p>气导通路的有效范围到约 20 kHz，48 kHz 采样的 24 kHz Nyquist 频率完全覆盖。改用 96 kHz 的代价是 <strong>2× CPU、2× 功耗、2× 内存</strong>，换来零信号增益。</p>
+    <p>96 kHz 唯一站得住的理由是同样块长下块延迟减半（32 点由 0.67 ms 降到 0.33 ms）——但第 07 节已论证整机约 1 ms 已经远低于可感知阈值（音箱空气传播就是 10 ms），继续压缩没有回报。</p>
+  </div>
+
+  <h3>PDM 时钟必须跑满</h3>
+  <div class="prose">
+    <p>IM69D130 通过<strong>切换时钟频率</strong>来实现几种省电模式（980 µA → 300 µA），而其 69 dB(A) 的 SNR 指标测试条件正是 <code>fCLK = 3.072 MHz</code>。<strong>降时钟省电会直接牺牲信噪比</strong>——演出设备不该省这点电，腰包电池的容量应该从续航需求倒推，而不是靠降规格来凑。</p>
+  </div>
+
+  <h3>内部用 32 位浮点</h3>
+  <div class="prose">
+    <p>三个理由：8 个级联 biquad 在定点下会<strong>逐级累积舍入误差</strong>；骨导路要补 20 dB 增益、之后还要与气导求和，定点需要在每一级仔细规划增益结构，浮点则完全不必操心；Cortex-M7 带<strong>原生单精度 FPU</strong>，第 06 节引用的 CMSIS-DSP 基准本身就是 f32 版本，浮点不带来额外开销。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>各环节规格汇总</caption>
+      <thead><tr><th>环节</th><th>规格</th><th>依据</th></tr></thead>
+      <tbody>
+        <tr><td>PDM 时钟</td><td class="num">3.072 MHz</td><td>= 48 kHz × 64；IM69D130 指标测试条件</td></tr>
+        <tr><td>采样率</td><td class="num">48 kHz</td><td>覆盖气导；骨导本身仅 10 kHz 带宽</td></tr>
+        <tr><td>DFSDM 输出</td><td class="num">24 bit 有符号整数</td><td>硬件原生，内部 32 bit 运算</td></tr>
+        <tr><td>DSP 内部</td><td class="num">32 bit 浮点</td><td>避免级联舍入与增益结构问题</td></tr>
+        <tr><td>DAC 输入</td><td class="num">24 bit</td><td>PCM5102A 支持</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">诚实的边界</span>
+    <p>24 bit / 48 kHz 在这里<strong>不是发烧配置，而是刚好不浪费传感器</strong>。系统真正的音质上限来自骨导 64.5 dB、气导 69 dB(A) 的传感器 SNR，以及皮肤对 4 kHz 以上骨导声的物理衰减。再往上堆规格（96 kHz、32 bit）只增加成本与功耗，不会改善听感。</p>
+  </div>
+</section>
+
+<!-- 05 -->
+<section id="s5">
+  <div class="sec-head"><span class="n">05</span><h2>主控决策</h2></div>
+  <div class="prose">
+    <p>主控的选择<strong>不取决于算力</strong>——整条 DSP 链只用掉不到 10% 的 CPU（详见第 6 节）。有两条独立的推理线索，最终指向同一颗芯片。</p>
+    <p><strong>线索一 · 位深。</strong>第 04 节已论证选定 IM69D130 + V2S200D 就等于选定 24 bit，而 ESP32-S3 的 PDM RX 只支持 16 bit。这一条本身就是排除性的。</p>
+    <p><strong>线索二 · 交互形态。</strong>本方案采用<strong>面板旋钮</strong>控制（第 9 节），不做 App。ESP32-S3 最大的优势（内置 BLE/WiFi，零成本实现校准 App）随之消失，而演出设备对实时确定性的要求则凸显出来。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>主控方案对比</caption>
+      <thead><tr><th>项目</th><th>STM32H750 / H743</th><th>ESP32-S3</th></tr></thead>
+      <tbody>
+        <tr><td>PDM 双通道</td><td class="yes">✓ DFSDM，最多 8 路输入 / 4 个滤波器</td><td class="yes">✓ 最多 4 条数据线 × 2 麦</td></tr>
+        <tr><td>PDM 位深</td><td class="num">最高 24 bit</td><td class="num">仅 16 bit</td></tr>
+        <tr><td>硬件解码</td><td class="yes">✓ CPU 零参与</td><td class="yes">✓ 硬件 PDM→PCM</td></tr>
+        <tr><td>实时确定性</td><td class="yes">✓ 裸机可控</td><td class="no">△ FreeRTOS + 协议栈存在抖动</td></tr>
+        <tr><td>无线</td><td class="no">需外挂模块</td><td class="yes">✓ 内置 BLE / WiFi</td></tr>
+        <tr><td>成本（模块）</td><td class="num">≈ $10–15</td><td class="num">≈ $2–4</td></tr>
+        <tr><td>DSP 库</td><td>CMSIS-DSP</td><td>ESP-DSP（汇编优化，含立体声 IIR）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note bone">
+    <span class="lbl">结论</span>
+    <p>选 <strong>STM32H750</strong>（与 H743 同核心，小 Flash 版本，成本更低；若代码超出 128 KB 则选 H743）。DFSDM 的 24 bit 输出正好匹配传感器要求，裸机可控的实时行为则应对<strong>演出中一次死机等于演出中断</strong>的风险。保留的算力余量将来给自适应啸叫抑制用。</p>
+    <p style="margin-top:10px">若后续产品决策改为需要手机 App 调参，切回 ESP32-S3 的代价<strong>不只是抖动</strong>——还必须把气导麦降级为 16 bit 版本的 IM69D120，牺牲近距离演唱的动态余量。届时应采用"射频只在校准时开启、演出时关闭"的架构来规避抖动。</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">选型陷阱</span>
+    <p><strong>STM32G4 没有 DFSDM。</strong>它虽是 L4 的后继型号，但砍掉了这个外设，选错会导致整个 PDM 架构无法落地。带 DFSDM 的还有 STM32F413/F423（2 个模块、最多 6 个滤波器，成本更低但算力较紧）和 L4 系列。<strong>下单前务必核对具体型号的数据手册。</strong></p>
+  </div>
+</section>
+
+<!-- 05 -->
+<section id="s6">
+  <div class="sec-head"><span class="n">06</span><h2>DSP 处理链</h2></div>
+
+  <div class="tbl">
+    <table>
+      <caption>处理环节与用途</caption>
+      <thead><tr><th>通路</th><th>环节</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>骨导</td><td>高通 ≈80 Hz</td><td>滤除呼吸声、皮肤摩擦声、佩戴晃动噪声</td></tr>
+        <tr><td>骨导</td><td>补偿 EQ（2–3 段）</td><td>拟合个人颅骨传递函数，核心校准参数</td></tr>
+        <tr><td>骨导</td><td>低通 ≈3 kHz</td><td>皮肤已严重衰减高频，同时减轻高频梳状效应</td></tr>
+        <tr><td>气导</td><td>嘴 → 耳 补偿 EQ</td><td>把嘴边采集的信号修正为"到达本人耳朵"的形态</td></tr>
+        <tr><td>气导</td><td>近讲效应补偿</td><td>全指向 MEMS 无近讲效应，<strong>默认关闭</strong>；仅改用定向咪头时启用</td></tr>
+        <tr><td>气导</td><td>延迟 +423 µs</td><td>见下方"延迟加在哪一路"</td></tr>
+        <tr><td>合并</td><td>混合比</td><td>骨导 / 气导比例，最核心的个人化参数</td></tr>
+        <tr><td>合并</td><td>限幅器</td><td>保护性，防止削波</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>延迟加在哪一路</h3>
+  <div class="note warn">
+    <span class="lbl">对早期估算的修正</span>
+    <p>本文档 Rev.1 曾写"骨导路延迟 +0.8 ms"，这个数字<strong>错了一个数量级</strong>，来源是按"麦克风距嘴 20–30 cm"估算的——那是台式麦的几何，而方案最终确定的是<strong>头戴麦，嘴角 2–3 cm</strong>。2.5 cm 的声程只有约 73 µs。</p>
+    <p style="margin-top:10px">更重要的是<strong>方向也反了</strong>。参考实现落地时才发现：本人体验中，骨导几乎瞬时到达耳蜗，而气导声要绕过面部传到自己耳道（约 17 cm ≈ 495 µs）。而麦克风在嘴外 2.5 cm 就拾到了信号，<strong>比耳朵早</strong>。所以要延迟的是<strong>气导路</strong>，不是骨导路。</p>
+  </div>
+  <div class="prose">
+    <p>"延迟多少"取决于目标是什么，两种解释都成立，参考实现两种都支持：</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>模式</th><th>延迟</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td>natural（默认）</td><td class="num">≈ 423 µs</td><td>复现本人的自然听觉时序，最忠实</td></tr>
+        <tr><td>coherent</td><td class="num">≈ 73 µs</td><td>只补偿两传感器的实际路径差，两路严格对齐求和，声音更"干净"但不如 natural 忠实</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>哪个更好听是听感问题，<strong>阶段 0 拿真实录音用耳朵判定</strong>。48 kHz 下 423 µs ≈ 20 个样本，固件里用环形缓冲区读指针偏移实现，零运算开销。</p>
+  </div>
+
+  <h3>算力核算</h3>
+  <div class="prose">
+    <p>参考实现落地后的实际级数：骨导路 4 级、气导路 2 级，合计 <strong>6 个双二阶（biquad）</strong>加混音与限幅（原估计 8 级偏保守）。按 CMSIS-DSP 在 Cortex-M7 上的公开基准（约 793 周期/采样点，已属偏保守的测量）：</p>
+    <ul>
+      <li>480 MHz 下 → <code>793 周期 ≈ 1.65 µs / 采样点</code></li>
+      <li>48 kHz 采样周期 → <code>20.8 µs</code></li>
+      <li><strong>CPU 占用率 ≈ 8%</strong></li>
+    </ul>
+    <p>之所以如此轻松，是因为整条链路里计算量最大的一步——把 3.072 MHz 的 1-bit PDM 码流抽取成 48 kHz PCM——<strong>由 DFSDM 硬件外设完成，CPU 完全不参与</strong>。这正是选择带 DFSDM 芯片的真正原因，而非主频。</p>
+  </div>
+
+  <div class="note air">
+    <span class="lbl">概念澄清：计算时间 ≠ 延迟</span>
+    <p>DMA 在后台搬运下一块数据的同时，CPU 处理上一块。计算完全<strong>藏在缓冲窗口内</strong>，对外不可见，因此不叠加到延迟上。若计算真的超时，表现为<strong>爆音/丢数据</strong>，而不是延迟变大——这是两种完全不同的失效模式。</p>
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="s7">
+  <div class="sec-head"><span class="n">07</span><h2>延迟预算</h2></div>
+
+  <div class="tbl">
+    <table>
+      <caption>48 kHz 下各环节延迟</caption>
+      <thead><tr><th>环节</th><th>延迟</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>MEMS 麦 ASIC</td><td class="num">≈ 6 µs</td><td>可忽略</td></tr>
+        <tr><td>PDM 抽取滤波</td><td class="num">40–100 µs</td><td>4 阶 sinc、64 倍抽取的群延迟</td></tr>
+        <tr><td><strong>块处理缓冲</strong></td><td class="num"><strong>0.67–5.3 ms</strong></td><td><strong>决定性变量</strong>，≈ 2 × 块长</td></tr>
+        <tr><td>DSP 运算</td><td class="num">≈ 0</td><td>藏在缓冲窗口内</td></tr>
+        <tr><td><strong>DAC 插值滤波</strong></td><td class="num"><strong>80 或 500 µs</strong></td><td>取决于 FLT 引脚接法</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三个杠杆，一颗芯片都不用换</h3>
+  <ol class="list">
+    <li><strong>块长降到 16–32 点</strong>（默认常见的 128 点 = 5.3 ms）。这一条的收益超过其他所有手段之和，省下约 4.6 ms。</li>
+    <li><strong>PCM5102A 的 FLT 引脚接成低延迟模式</strong>：默认线性相位 FIR ≈500 µs，可选最小相位 IIR ≈80 µs。<strong>改一根线，省 420 µs。</strong></li>
+    <li><strong>EQ 一律用 IIR，不用 FIR</strong>。线性相位 FIR 均衡器的群延迟动辄进入毫秒级。</li>
+  </ol>
+  <div class="prose"><p>做完这三条：<strong>约 1 ms</strong>，成本为零。</p></div>
+
+  <div class="note">
+    <span class="lbl">别过度优化</span>
+    <p>声音每毫秒只走 34 cm。音箱离人 3.4 m，<strong>光空气传播就是 10 ms</strong>；信号进数字调音台后，调音台自身还有 1–3 ms。把设备从 1 ms 压到 0.05 ms（例如改全模拟）在整条链路里没有可感知收益，却会牺牲掉个人化校准这一核心功能。</p>
+    <p style="margin-top:10px">更根本地说：演唱者同时听到自己天然的自听（0 延迟）和音响里的处理声，两者叠加的梳状干涉是<strong>结构性的</strong>——即使电路做到 0 延迟也依然存在。</p>
+  </div>
+</section>
+
+<!-- 07 -->
+<section id="s8">
+  <div class="sec-head"><span class="n">08</span><h2>传感器摆位</h2></div>
+
+  <h3>骨导传感器</h3>
+  <div class="prose">
+    <p>优先试<strong>乳突（耳后骨突）与下颌骨</strong>，音色比喉部更接近听感——喉部偏"嗡"，且吞咽与呼吸噪声大。结构上探头需<strong>恒压贴合</strong>（弹簧或硅胶预紧），接触式传感器对支架晃动和皮肤摩擦极敏感，这是产品化阶段最花时间的部分。</p>
+    <p>最终位置<strong>需实验确定</strong>，见第 13 节。</p>
+  </div>
+
+  <h3>气导麦克风：嘴边，理由需要绕一下</h3>
+  <div class="prose">
+    <p>理论上"耳边"才对——要还原的是自己听到的声音，而人是用耳朵听的。但实际必须选<strong>嘴边</strong>：耳边位置会拾入大量舞台声与返听音箱声（啸叫灾难）、信号电平低得多、且随头部转动而变化。</p>
+    <p>破解办法是把"嘴到耳"的差异<strong>当作一个固定滤波器在 DSP 里补偿掉</strong>。这个传递函数对同一个人基本固定（研究显示主要表现为低频抬升、高频衰减的规律性变化），于是可以在嘴边采集以获得高信噪比与抗啸叫能力，同时通过 EQ 拿回理论正确性。</p>
+    <p><strong>具体位置：嘴角侧面 2–3 cm，略微偏轴</strong>，不要正对嘴，以避开气流冲击造成的喷麦与爆破音。这是所有专业头戴麦的标准做法。</p>
+  </div>
+
+  <div class="note air">
+    <span class="lbl">附带发现</span>
+    <p>研究表明<strong>张嘴程度会明显影响气导麦的传递函数，但对骨导传感器几乎没有影响</strong>。这意味着气导路会随发音口型波动，骨导路则更稳定——又一个偏重骨导的理由。</p>
+  </div>
+
+  <h3>指向性：一个未决的架构取舍</h3>
+  <div class="prose">
+    <p>声学上定向明显更优。DPA 的数据：心形指向相比全指向，背景声只拾入一半，<strong>来自音箱的低频能降到十分之一以下</strong>（约 20 dB）。更有说服力的是产品史——DPA 的 4066 是全指向头戴麦，正因高声压舞台上啸叫成问题，才专门推出了心形指向的 4088。</p>
+    <p>但<strong>MEMS 麦克风（含 IM69D130）本质上都是全指向的</strong>，这构成真实的架构冲突：</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>方案</th><th>指向性</th><th>代价</th></tr></thead>
+      <tbody>
+        <tr><td>A. 全指向 MEMS</td><td class="no">无</td><td>无代价，保持 PDM 双通道同步架构</td></tr>
+        <tr><td>B. 传统定向电容咪头</td><td class="yes">最好</td><td>模拟输出，<strong>破坏 PDM 同步架构</strong>，需另加 ADC</td></tr>
+        <tr><td>C. 双 MEMS 梯度 / 波束</td><td class="yes">中等</td><td>增加 DSP 复杂度与延迟，结构变复杂</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p><strong>决定：先用方案 A 起步，把 B 列为明确的升级路径。</strong>依据是近讲距离优势本身就很大——嘴边 2 cm 对返听音箱 1.5 m，距离比 75:1，约 <strong>37 dB</strong> 的天然优势；加上骨导通路完全不拾环境声这一结构性护城河。</p>
+    <p>分水岭：剧场、小场地或使用入耳监听（声压可控）→ 全指向足够；有大功率返听音箱的响舞台 → 定向值得付出架构代价。<strong>这是一个可以用实验回答的问题</strong>，不需要现在赌。</p>
+  </div>
+</section>
+
+<!-- 08 -->
+<section id="s9">
+  <div class="sec-head"><span class="n">09</span><h2>人机界面</h2></div>
+  <div class="prose">
+    <p>采用面板旋钮控制，形态参照专业耳麦发射器。实现上是电位器接 MCU 的 ADC，读数映射到 DSP 参数——技术上毫无难度，<strong>参数的选择比实现方式重要得多</strong>。</p>
+    <p>核心原则：<strong>不是每个参数都值得一个旋钮。</strong>延迟对齐由几何决定、高低通频率由生理决定，做成旋钮只会招致误调。补偿 EQ 应做成<strong>宏控制</strong>——一个旋钮沿预先设计好的曲线同时移动多个频点。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>面板控制</caption>
+      <thead><tr><th>控件</th><th>控制内容</th><th>物理形式</th></tr></thead>
+      <tbody>
+        <tr><td>混合比</td><td>骨导 / 气导比例</td><td>沉孔式或翻盖下，装台时设定</td></tr>
+        <tr><td>音色 · 厚度</td><td>宏控制，同时调补偿 EQ 多个频点</td><td>沉孔式或翻盖下，装台时设定</td></tr>
+        <tr><td>输出电平</td><td>总增益</td><td>面板可及，随时可调</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">两条演出设备的经验法则</span>
+    <p><strong>旋钮会被碰到。</strong>舒尔、森海的腰包发射器把增益调节做成翻盖下的凹陷式微调正是这个原因。只有输出电平需要演出中可及。</p>
+    <p style="margin-top:10px"><strong>有了旋钮就别做预设。</strong>"旋钮位置就是当前状态"对演出设备是优点——调音师扫一眼就知道设置，出问题能立刻复原。预设与旋钮混用会产生"旋钮位置与实际值对不上"的经典问题，现场很要命。</p>
+  </div>
+
+  <div class="prose"><p>实现细节：ADC 读数需加<strong>平滑与死区</strong>，否则调旋钮时会产生 zipper noise（阶梯噪声）。</p></div>
+</section>
+
+<!-- 09 -->
+<section id="s10">
+  <div class="sec-head"><span class="n">10</span><h2>演出场景专项</h2></div>
+
+  <h3>输出为麦克风电平，不是线路电平</h3>
+  <div class="prose">
+    <p>麦克风电平（约 −60 ~ −40 dBu）才能插进调音台的<strong>话筒通道</strong>走标准人声流程；更关键的是，<strong>能直接插进无线腰包发射器</strong>，让演唱者自由走动。线路电平插话筒口会瞬间过载。建议做成 Mic / Line 可切换，默认 Mic。</p>
+  </div>
+
+  <h3>必须耐受 48 V 幻象电源</h3>
+  <div class="prose">
+    <p>调音师十有八九会不小心把幻象电源打开。输出级要么<strong>利用它供电</strong>（很优雅，省电池），要么至少<strong>安全耐受不烧毁</strong>。PCB 设计阶段就要考虑：输出端串隔直电容加钳位保护。这是硬性要求。</p>
+  </div>
+
+  <h3>啸叫抑制</h3>
+  <div class="prose">
+    <p>舞台上有返听音箱与主扩，这是最容易翻车的地方。本方案有<strong>结构性优势</strong>：骨导通路完全不拾环境声，天然免疫反馈，混合比越偏骨导越敢开大音量。但气导路仍会啸叫，固件中应预留<strong>自适应啸叫抑制</strong>（LMS 自适应陷波）——这也是主控保留算力余量的原因。</p>
+  </div>
+
+  <h3>旁路保护</h3>
+  <div class="prose">
+    <p>演出中设备死机等于演出中断。设计<strong>旁路模式</strong>：DSP 异常时，气导麦信号直接模拟旁路到输出。最坏情况下演唱者仍有一支普通麦克风可用，而不是彻底哑掉。</p>
+  </div>
+
+  <h3>供电</h3>
+  <div class="prose">
+    <p>腰包锂电池，续航需覆盖一场演出并留足余量（建议 4 小时以上）。<strong>电量指示要明显</strong>——演到一半没电是灾难。</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="s11">
+  <div class="sec-head"><span class="n">11</span><h2>处理边界划分</h2></div>
+  <div class="prose">
+    <p>设备内部做"初步人声 EQ"方向正确，但边界必须严格划分。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>设备内部完成</th><th>留给调音台，不要抢</th></tr></thead>
+      <tbody>
+        <tr><td>骨导路滤波与补偿 EQ</td><td>压缩（音乐性的那种）</td></tr>
+        <tr><td>延迟对齐</td><td>齿音消除</td></tr>
+        <tr><td>骨导 / 气导混合比</td><td>适配场地与 PA 的整体 EQ</td></tr>
+        <tr><td>嘴 → 耳 补偿、近讲补偿</td><td>混响等效果</td></tr>
+        <tr><td>温和的整体音色修饰</td><td>通道动态处理</td></tr>
+        <tr><td>保护性限幅</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note bone">
+    <span class="lbl">为什么这条界线重要</span>
+    <p>如果设备已经把声音压过、EQ 到定型，<strong>调音师会觉得"这个信号没法调"，反而排斥你的设备</strong>。输出应该像一支好麦克风，而不是一段成品混音。</p>
+    <p style="margin-top:10px">骨导重建必须在设备内完成，因为只有它拿得到骨导信号——这是不可替代价值。而通用人声处理是调音师的专业领域，交出去反而是加分。</p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="s12">
+  <div class="sec-head"><span class="n">12</span><h2>分阶段开发计划</h2></div>
+  <ol class="phases">
+    <li class="phase">
+      <span class="tag">阶段 0</span>
+      <div>
+        <h3>桌面验证 · 零硬件开发</h3>
+        <p><strong>软件侧已就绪。</strong>DSP 参考实现已完成并通过验证：与 CMSIS-DSP 同结构的双二阶级联、RBJ 系数设计、完整处理链、三旋钮映射、C 系数导出。关键的<strong>分块处理与整段结果逐样本一致</strong>已验证通过——这是将来能安全移植到固件的前提。刻意不依赖 scipy，自己实现滤波器，以杜绝"仿真好听、上机不对"。</p>
+        <p>购买 V2S200D 评估套件。它已包含 <strong>V2S 传感器 + SiSonic MEMS 麦克风</strong>与 PDM→USB 转换盒，插电脑即认成立体声录音设备（左 = 骨导，右 = 气导），气导麦都不用另买。</p>
+        <p>在 REAPER（$60，60 天全功能试用）中建两条轨，用自带的 ReaEQ 与 ReaDelay 做延迟对齐、EQ 与混合，戴封闭耳机实时 A/B 对比，调到"对，这就是我听到的自己"为止。</p>
+        <p><strong>Windows 注意：</strong>必须在 REAPER 中启用 WASAPI 独占模式或安装 ASIO4ALL，否则默认驱动延迟高达几十毫秒，无法实时监听。</p>
+        <div class="gate"><b>关键决策点</b> — 这一步用最低成本回答"这条路能不能出好声音"。若效果不理想，后续所有硬件投入即可省下。同时确定骨导探头的最佳佩戴位置（乳突 vs 下颌 vs 喉部）。</div>
+      </div>
+    </li>
+    <li class="phase">
+      <span class="tag">阶段 1</span>
+      <div>
+        <h3>参数固化与个体差异量化</h3>
+        <p>让若干人分别调出"自己觉得像"的参数组合，记录混合比与 EQ 曲线，量化个体差异有多大。这决定了旋钮的调节范围与宏控制曲线该怎么设计。</p>
+        <div class="gate"><b>产出</b> — 一组可直接写进固件的滤波器系数与旋钮映射曲线。</div>
+      </div>
+    </li>
+    <li class="phase">
+      <span class="tag">阶段 2</span>
+      <div>
+        <h3>硬件原型</h3>
+        <p>STM32H750 + 双 PDM 输入 + PCM5102A + 麦克风电平输出级（含幻象耐受）。头戴支架做恒压贴合的骨导探头与嘴角麦克风杆。三个旋钮。</p>
+        <div class="gate"><b>关键测试</b> — 在真实音量下逐步推高直至啸叫，记录不同混合比下的临界点。若偏骨导时余量充足，全指向 MEMS 方案即可定案；否则启动定向咪头的架构改造。</div>
+      </div>
+    </li>
+    <li class="phase">
+      <span class="tag">阶段 3</span>
+      <div>
+        <h3>产品化</h3>
+        <p>加入自适应啸叫抑制与旁路保护。机械设计上解决佩戴稳定性、汗液防护与线缆应力释放。电池续航与电量指示。实地彩排验证。</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- 12 -->
+<section id="s13">
+  <div class="sec-head"><span class="n">13</span><h2>待验证问题</h2></div>
+  <div class="prose">
+    <p>以下三点是方案中真实的不确定性，均可在阶段 0–2 用实验回答，不应靠推理决定。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>问题</th><th>影响</th><th>何时回答</th></tr></thead>
+      <tbody>
+        <tr><td>逼真度上限</td><td>决定项目是否值得继续</td><td>阶段 0</td></tr>
+        <tr><td>骨导探头最佳位置</td><td>决定头戴机械结构</td><td>阶段 0</td></tr>
+        <tr><td>全指向是否够用</td><td>决定是否要为定向重构信号链</td><td>阶段 2</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">最大的单点风险</span>
+    <p><strong>逼真度上限是未知的。</strong>皮肤表面测到的振动与耳蜗实际感受到的骨导声之间隔着无法测量的颅骨传递函数，能逼近到什么程度只能靠实验回答。<strong>因此阶段 0 必须先做，且必须在投入任何硬件开发之前完成。</strong></p>
+  </div>
+</section>
+
+<footer>
+  <h4>主要资料来源</h4>
+  <ul>
+    <li>Knowles / Syntiant V2S200D 产品页与用户指南（含 −26 dBFS 电平归一化说明）</li>
+    <li>Infineon IM69D130 数据手册；Infineon 开发者社区《高动态范围麦克风的数字编码要求》</li>
+    <li>STMicroelectronics：STM32H7 DFSDM 培训资料、AN4990（Sigma-Delta 数字接口入门）、AN5027（STM32 接入 PDM 数字麦克风）</li>
+    <li>Texas Instruments PCM5102A 数据手册与 E2E 论坛群延迟讨论</li>
+    <li>DPA Microphones：全指向 vs 心形头戴麦选型指南、舞台头戴麦摆位指南</li>
+    <li>Acta Acustica (2024)：自声传递函数建模研究</li>
+    <li>Espressif ESP-IDF I²S 文档、ESP-DSP 库（备选方案参考）</li>
+  </ul>
+  <p style="margin-top:18px;color:var(--ink-faint)">本方案中标注"待验证"的部分尚未经实验确认；器件参数以下单前的官方数据手册为准。</p>
+</footer>
+
+</div>
+</body>
+</html>
