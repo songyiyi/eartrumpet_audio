@@ -389,14 +389,15 @@ footer{margin-top:52px;padding-top:24px;border-top:1px solid var(--rule);
     <p>你手上已经有一块 480 MHz 的仪器。两个用法：</p>
     <ul>
       <li><strong>测时钟频率</strong>：把 <code>PC2</code> 用杜邦线接到另一个引脚，配一个定时器做外部计数，数一秒的边沿数——就是一台频率计</li>
-      <li><strong>测信号活性</strong>：在采集固件里加串口诊断输出</li>
+      <li><strong>测信号活性</strong>：<code>capture.py --monitor</code> 的 RMS／峰值／DC 读数</li>
     </ul>
   </div>
 
   <div class="note air">
     <span class="lbl">串口诊断输出示例</span>
-    <p class="mono" style="font-size:13px;line-height:1.9">CH0 骨导　1密度 49.8%　RMS −62.3 dBFS<br>CH1 气导　1密度 50.1%　RMS −48.7 dBFS</p>
-    <p style="margin-top:10px">静音时 1 的密度应在 <strong>50% 附近</strong>（这正是 PDM 的定义）。说话时密度偏离、RMS 上升。<strong>敲一下骨导传感器看哪个通道的 RMS 跳</strong>——步骤 4 的敲击测试完全可以靠这个完成，不需要任何仪器。</p>
+    <p class="mono" style="font-size:13px;line-height:1.9">CH0 RMS −62.3 峰值 −48.1 DC +0.0004　　CH1 RMS −48.7 峰值 −31.2 DC −0.0011</p>
+    <p style="margin-top:10px">由 <code>tools/capture.py --monitor</code> 每秒刷新。静音时 <strong>DC 应接近 0</strong>、RMS 很低；DC 接近 ±1 表示数据线卡死或悬空，RMS 为零表示传感器没输出。<strong>敲一下骨导传感器看哪个通道的 RMS 跳</strong>——步骤 4 的敲击测试完全可以靠这个完成，不需要任何仪器。</p>
+    <p style="margin-top:10px">诊断刻意在电脑侧算：固件已经把原始比特流经 DFSDM 消费掉，拿不到"1 的密度"；而且文本诊断与二进制音频流共用一个串口会互相破坏。固件只用红灯指示曾经丢块。</p>
   </div>
 </section>
 
@@ -497,7 +498,7 @@ footer{margin-top:52px;padding-top:24px;border-top:1px solid var(--rule);
         <tr><td>CKOUT 频率</td><td class="mono">3.072 MHz</td><td class="blank">____________</td></tr>
         <tr><td>CKOUT 占空比</td><td class="mono">48–52 %</td><td class="blank">____________</td></tr>
         <tr><td>传感器 VDD</td><td class="mono">3.3 V</td><td class="blank">____________</td></tr>
-        <tr><td>静音时 1 密度 CH0／CH1</td><td class="mono">≈50 %</td><td class="blank">____________</td></tr>
+        <tr><td>静音时 DC CH0／CH1</td><td class="mono">≈ 0（±0.01 内）</td><td class="blank">____________</td></tr>
         <tr><td>敲击骨导 → 哪个声道跳</td><td class="mono">左（约定）</td><td class="blank">____________</td></tr>
       </tbody>
     </table>

@@ -128,6 +128,16 @@ void board_dfsdm_init(void)
     __HAL_RCC_D2SRAM2_CLK_ENABLE();
     __HAL_RCC_D2SRAM3_CLK_ENABLE();
 
+    /* PC2 在 H743 上是"双焊盘"引脚：旁边还有一个 PC2_C（ADC3 专用）。
+     * 复位后两者之间的模拟开关是**闭合**的，也就是 PC2_C 那块焊盘被并在
+     * PC2 上。它不影响逻辑功能，所以不会报错 —— 但会给 3 MHz 时钟线多挂
+     * 一个焊盘的寄生电容，劣化边沿。IM69D130 要求时钟上升/下降 ≤13 ns，
+     * 一米线缆本来就吃紧，这点电容不该白白加上去。
+     *
+     * CubeMX 把 PC2 配成数字功能时会自动生成这一句；手写就得自己记得。 */
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+    HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC2, SYSCFG_SWITCH_PC2_OPEN);
+
     /* PC2 = DFSDM1_CKOUT (AF6)，PC7 = DFSDM1_DATIN3 (AF4)。
      * 两者复用编号不同，必须分开初始化 —— 详见 board.h 的推导说明。
      * 时钟线要求上升/下降时间 ≤13 ns，所以用最高速度档。 */
