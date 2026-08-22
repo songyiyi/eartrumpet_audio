@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>固件烧录指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --ground:#F3F5F6; --surface:#FFFFFF; --surface-2:#E9EEF0;
+  --ink:#11171A; --ink-soft:#55636A; --ink-faint:#8A969C;
+  --rule:#D8E0E3; --rule-soft:#E7ECEE;
+  --bone:#A96B25; --bone-tint:#F5E9D8;
+  --air:#1F6E80;  --air-tint:#DCEBEF;
+  --warn:#A8382B; --warn-tint:#F7E4E1;
+  --ok:#2E6B45;   --ok-tint:#E0EFE5;
+  --shadow:0 1px 2px rgba(17,23,26,.05);
+  --f-disp:"Barlow Semi Condensed","Noto Sans SC",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono","Noto Sans SC",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1113; --surface:#151B1E; --surface-2:#1D2529;
+  --ink:#E3EAEC; --ink-soft:#94A3A9; --ink-faint:#6A787E;
+  --rule:#273136; --rule-soft:#1E262A;
+  --bone:#DCA25C; --bone-tint:#332818; --air:#5FB9C8; --air-tint:#133037;
+  --warn:#E58370; --warn-tint:#33201C; --ok:#6FBF8E; --ok-tint:#16301F;
+  --shadow:0 1px 2px rgba(0,0,0,.35);}}
+:root[data-theme="dark"]{
+  --ground:#0D1113; --surface:#151B1E; --surface-2:#1D2529;
+  --ink:#E3EAEC; --ink-soft:#94A3A9; --ink-faint:#6A787E;
+  --rule:#273136; --rule-soft:#1E262A;
+  --bone:#DCA25C; --bone-tint:#332818; --air:#5FB9C8; --air-tint:#133037;
+  --warn:#E58370; --warn-tint:#33201C; --ok:#6FBF8E; --ok-tint:#16301F;
+  --shadow:0 1px 2px rgba(0,0,0,.35);}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--f-body);
+  font-size:16px;line-height:1.68;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:0 28px 90px}
+.prose{max-width:70ch}
+header.mast{padding:58px 0 32px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--f-disp);font-size:13px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-faint);margin:0 0 16px}
+h1{font-weight:600;font-size:clamp(32px,5vw,44px);line-height:1.14;letter-spacing:-.015em;
+  margin:0 0 16px;text-wrap:balance}
+.stand{font-size:18px;line-height:1.6;color:var(--ink-soft);max-width:62ch;margin:0}
+section{padding:44px 0 8px;border-top:1px solid var(--rule);margin-top:36px}
+section:first-of-type{border-top:0}
+.sh{display:flex;gap:16px;align-items:baseline;margin-bottom:20px}
+.sh .n{font-family:var(--f-mono);font-size:13px;color:var(--ink-faint);padding-top:4px;
+  font-variant-numeric:tabular-nums}
+h2{font-weight:600;font-size:25px;line-height:1.25;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h3{font-weight:600;font-size:17px;margin:26px 0 10px}
+p{margin:0 0 15px} ul,ol{margin:0 0 15px;padding-left:20px} li{margin-bottom:7px}
+code{font-family:var(--f-mono);font-size:.87em;background:var(--surface-2);padding:1px 5px;border-radius:3px}
+pre{background:var(--surface-2);padding:14px 16px;border-radius:4px;overflow-x:auto;
+  font-family:var(--f-mono);font-size:13.5px;line-height:1.6;margin:0 0 18px}
+pre code{background:none;padding:0;font-size:inherit}
+.tbl{overflow-x:auto;margin:0 0 24px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:14.5px}
+caption{text-align:left;font-family:var(--f-disp);font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);padding-bottom:10px}
+th{font-family:var(--f-disp);font-size:12.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-soft);text-align:left;padding:0 16px 9px 0;
+  border-bottom:1.5px solid var(--ink);white-space:nowrap}
+td{padding:10px 16px 10px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:1px solid var(--rule)}
+.mono{font-family:var(--f-mono);font-size:13.5px}
+.note{border-left:3px solid var(--ink-faint);background:var(--surface);padding:15px 20px;
+  margin:0 0 22px;box-shadow:var(--shadow)}
+.note p:last-child{margin-bottom:0}
+.note .lbl{font-family:var(--f-disp);font-size:12px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:block;margin-bottom:6px}
+.note.warn{border-left-color:var(--warn);background:var(--warn-tint)}
+.note.warn .lbl{color:var(--warn)}
+.note.ok{border-left-color:var(--ok);background:var(--ok-tint)}
+.note.ok .lbl{color:var(--ok)}
+.note.air{border-left-color:var(--air);background:var(--air-tint)}
+.note.air .lbl{color:var(--air)}
+.led{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;
+  vertical-align:-1px;border:1px solid rgba(0,0,0,.2)}
+.led.g{background:#3FBF5F} .led.r{background:#D9422B} .led.off{background:#9AA6AC}
+footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--rule);
+  font-size:13.5px;color:var(--ink-soft)}
+@media (max-width:640px){.wrap{padding:0 18px 70px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{body{background:#fff}.note{break-inside:avoid}}
+:focus-visible{outline:2px solid var(--air);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">阶段 0 · 操作指南</p>
+  <h1>固件烧录指南</h1>
+  <p class="stand">从拉依赖到看见数据的完整流程。烧录本身只是把一个文件拖进 U 盘，真正需要交代的是<strong>怎么确认它跑起来了</strong>——板上两盏灯就是主要的反馈通道。</p>
+</header>
+
+<section>
+  <div class="sh"><span class="n">01</span><h2>前置检查</h2></div>
+  <div class="prose"><p>动手前确认三样东西就位。</p></div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>需要</th><th>检查命令</th><th>没有怎么办</th></tr></thead>
+      <tbody>
+        <tr><td>ARM 交叉编译器</td><td class="mono">arm-none-eabi-gcc --version</td><td>已装在 <code>~/.local/xpack-arm-none-eabi-gcc-*/bin</code></td></tr>
+        <tr><td>make</td><td class="mono">mingw32-make --version</td><td>随 MinGW 安装，在 <code>~/.local/mingw64/bin</code></td></tr>
+        <tr><td>git</td><td class="mono">git --version</td><td>用于拉取 HAL</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note air">
+    <span class="lbl">把工具链加进 PATH</span>
+    <p>每次开新终端都要设，或者一次性加进用户环境变量：</p>
+    <pre><code>export PATH="$HOME/.local/xpack-arm-none-eabi-gcc-15.2.1-1.1/bin:$HOME/.local/mingw64/bin:$PATH"</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">02</span><h2>拉依赖与编译</h2></div>
+
+  <h3>第一次：拉取 HAL 与 CMSIS</h3>
+  <div class="prose">
+    <p>约 100 MB，只需执行一次。全部来自 ST 的官方 GitHub 仓库，<strong>不需要注册 ST 账号</strong>。</p>
+  </div>
+  <pre><code>bash firmware/vendor/fetch.sh</code></pre>
+
+  <h3>编译</h3>
+  <pre><code>cd firmware/nucleo-h743
+mingw32-make</code></pre>
+
+  <div class="prose"><p>成功的话最后会打印体积：</p></div>
+  <pre><code>   text	   data	    bss	    dec	    hex	filename
+  23124	     24	  16748	  39896	   9bd8	build/capture.elf</code></pre>
+
+  <div class="prose">
+    <p>产物在 <code>build/</code> 下：<code>capture.bin</code>（拖拽烧录用）、<code>capture.hex</code>、<code>capture.elf</code>（调试用，含符号）。</p>
+  </div>
+
+  <div class="note">
+    <span class="lbl">链接期的两类警告是正常的</span>
+    <p><code>_close / _lseek / _read / _write is not implemented</code> —— 这是 <code>nosys.specs</code> 的预期行为，本固件不用文件系统。</p>
+    <p style="margin-top:10px"><code>LOAD segment with RWX permissions</code> —— 嵌入式链接脚本的常见提示，不影响运行。</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">03</span><h2>烧录方式一 · 拖拽（推荐）</h2></div>
+  <div class="prose">
+    <p>Nucleo 板载的 ST-Link 会把自己模拟成一个 U 盘，<strong>把 .bin 拖进去就完成烧录</strong>。不需要任何软件。</p>
+  </div>
+
+  <ol>
+    <li>用 USB 线连接 Nucleo 的 <strong>CN1</strong> 口（靠近 ST-Link 那一侧，不是 USB User 口）</li>
+    <li>等待电脑出现一个名为 <code>NOD_H743ZI</code> 的可移动磁盘</li>
+    <li>把 <code>build/capture.bin</code> 复制进去</li>
+    <li>板上 <strong>LD4（COM 灯）会红绿交替闪烁</strong>几秒，表示正在写入</li>
+    <li>磁盘会自动弹出并重新挂载，烧录完成，程序立即开始运行</li>
+  </ol>
+
+  <div class="prose"><p>也可以用 Makefile 一步完成（把盘符改成你系统上的实际值）：</p></div>
+  <pre><code>mingw32-make flash NUCLEO_DRIVE=/d</code></pre>
+
+  <div class="note warn">
+    <span class="lbl">Windows 上的一个已知怪象</span>
+    <p>复制完成后 Windows 有时会弹出<strong>"复制失败"或"设备已被移除"</strong>的提示，但<strong>烧录其实成功了</strong>。原因是 ST-Link 写完 Flash 后会主动重新挂载磁盘，Windows 把这个当成了拔出。</p>
+    <p style="margin-top:10px"><strong>判断依据不是弹窗，而是板上的灯</strong>（见第 05 节）。真正失败时磁盘里会出现一个 <code>FAIL.TXT</code>，打开能看到原因。</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">别拖错文件</span>
+    <p>这种方式只认 <code>.bin</code>。拖 <code>.elf</code> 或 <code>.hex</code> 进去不会报错，但也不会正确烧录。</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">04</span><h2>烧录方式二与三</h2></div>
+
+  <h3>OpenOCD（开源，无需 ST 账号）</h3>
+  <div class="prose">
+    <p>如果拖拽方式不可用，或者你想要带校验的烧录：</p>
+  </div>
+  <pre><code>openocd -f interface/stlink.cfg -f target/stm32h7x.cfg \
+  -c "program build/capture.bin 0x08000000 verify reset exit"</code></pre>
+  <div class="prose">
+    <p><code>verify</code> 会回读比对，比拖拽方式多一层保障。OpenOCD 可用包管理器安装，与 ST 无关。</p>
+  </div>
+
+  <h3>STM32CubeProgrammer</h3>
+  <div class="prose">
+    <p>ST 官方图形工具，功能最全（能读 Flash、看选项字节、做量产烧录）。<strong>但下载需要注册 ST 账号</strong>，这也是我们整个工程刻意不依赖它的原因。前两种方式够用就不必装。</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">05</span><h2>怎么确认它跑起来了</h2></div>
+  <div class="prose">
+    <p><strong>板上两盏灯就是主要的反馈通道。</strong>固件刻意把状态用灯表达，这样不接电脑、不用任何工具也能判断。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>LED 状态对照</caption>
+      <thead><tr><th>绿灯 LD1</th><th>红灯 LD3</th><th>含义</th><th>下一步</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="led g"></span>每秒闪一次</td>
+          <td><span class="led off"></span>灭</td>
+          <td><strong>一切正常</strong>，采集在跑</td>
+          <td>接电脑收数据</td>
+        </tr>
+        <tr>
+          <td><span class="led g"></span>每秒闪一次</td>
+          <td><span class="led r"></span>亮</td>
+          <td>采集正常，但<strong>串口丢过块</strong></td>
+          <td>降低 <code>BOARD_VCP_BAUD</code> 或改送 16 位</td>
+        </tr>
+        <tr>
+          <td><span class="led off"></span>不闪</td>
+          <td><span class="led r"></span>常亮</td>
+          <td><strong>初始化失败</strong>，卡在 Error_Handler</td>
+          <td>八成是时钟配置，见下方</td>
+        </tr>
+        <tr>
+          <td><span class="led off"></span>不闪</td>
+          <td><span class="led off"></span>灭</td>
+          <td>程序没跑起来</td>
+          <td>烧录是否成功？按一下黑色 RESET 键</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">红灯常亮最常见的原因</span>
+    <p><strong>HSE 起振失败。</strong>Nucleo 上的 8 MHz 不是晶振，而是 ST-Link 通过 MCO 送过来的方波，所以固件里配的是 <code>RCC_HSE_BYPASS</code> 而非 <code>RCC_HSE_ON</code>。</p>
+    <p style="margin-top:10px">如果你换到别的板子（比如 WeAct 核心板，那上面是<strong>真晶振</strong>），必须把 <code>src/clock.c</code> 里改成 <code>RCC_HSE_ON</code>，否则一定卡在这里。</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">06</span><h2>接收数据</h2></div>
+
+  <div class="prose">
+    <p>Nucleo 除了模拟 U 盘，还会虚拟出一个串口。先找到它：</p>
+  </div>
+  <pre><code>python tools/capture.py --list</code></pre>
+  <div class="prose">
+    <p>输出里带 <code>STLink</code> 或 <code>ST-Link</code> 字样的那个就是。</p>
+  </div>
+
+  <h3>敲击测试（确定左右声道）</h3>
+  <pre><code>python tools/capture.py COM5 --monitor</code></pre>
+  <div class="prose">
+    <p>屏幕上会滚动显示两个通道的 RMS、峰值和直流分量。<strong>用手指轻敲骨导传感器，看哪个通道的 RMS 跳</strong>——那个就是骨导。</p>
+    <p>方案约定<strong>左（CH0）＝骨导</strong>。如果实测相反，改固件里两个 <code>SELECT</code> 的接法，或者直接在处理时交换声道——<strong>改软件比改硬件容易</strong>。</p>
+  </div>
+
+  <h3>正式录制</h3>
+  <pre><code>python tools/capture.py COM5 out/rec.wav -d 20</code></pre>
+  <div class="prose">
+    <p>录 20 秒存成 24 位立体声 WAV，然后进调参界面：</p>
+  </div>
+  <pre><code>python tools/tune_gui.py out/rec.wav</code></pre>
+</section>
+
+<section>
+  <div class="sh"><span class="n">07</span><h2>故障排查</h2></div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>症状</th><th>先查</th></tr></thead>
+      <tbody>
+        <tr><td>电脑不出现 <code>NOD_H743ZI</code> 磁盘</td><td>USB 线是否只有供电没有数据（很常见）；换根线试。或换插 CN1 口</td></tr>
+        <tr><td>磁盘里出现 <code>FAIL.TXT</code></td><td>打开看内容。多为文件格式不对（拖了 .elf）或 Flash 保护</td></tr>
+        <tr><td><code>capture.py</code> 收不到任何数据</td><td>① 绿灯是否在闪　② 波特率是否与固件一致　③ 串口号是否选对</td></tr>
+        <tr><td>收到数据但全是零</td><td>传感器还没接。固件本身没问题，DFSDM 会一直输出</td></tr>
+        <tr><td>数据的 DC 接近 ±1</td><td>数据线卡死或悬空。查 PC7 接线与传感器供电</td></tr>
+        <tr><td>丢块计数持续增长</td><td>串口带宽不够。48k×2ch×24bit = 2.88 Mbit/s，需要 4 Mbaud 才有余量</td></tr>
+        <tr><td>编译报找不到头文件</td><td><code>firmware/vendor/fetch.sh</code> 是否执行过</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">串口带宽这一条值得提前知道</span>
+    <p>固件设的是 4 Mbaud。STLINK-V3E（Nucleo-H743ZI2 板载）支持，但<strong>更老的 ST-LINK/V2-1 可能跑不到</strong>。若红灯亮且丢块持续增长，两条退路：把 <code>inc/board.h</code> 的 <code>BOARD_VCP_BAUD</code> 降到 2000000，同时把发送改成 16 位（带宽减半）；或者降低采样率。</p>
+    <p style="margin-top:10px">阶段 0 只是采素材，16 位完全够用——传感器本身也只有 64.5 dB 信噪比。</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">08</span><h2>一个必须说清楚的前提</h2></div>
+  <div class="note warn">
+    <span class="lbl">这份固件从未在真机上运行过</span>
+    <p>它已通过 Cortex-M7 交叉编译，并用 <code>nm</code> 验证了 DMA 缓冲落在 D2 SRAM（<code>0x30000000</code>）——这能排除一大类错误。但<strong>时钟树、DFSDM 通道配对、串口带宽</strong>这三处只有上电才知道。</p>
+    <p style="margin-top:10px">所以实验手册第 1 步是<strong>先只测开发板、量 CKOUT 频率</strong>，不要一上来就接传感器。那一步不过，接什么都白搭。</p>
+  </div>
+</section>
+
+<footer>
+  <p>对应固件 <code>firmware/nucleo-h743</code>，接收脚本 <code>tools/capture.py</code>。硬件与实验流程见设计方案与阶段 0 实验手册。</p>
+</footer>
+
+</div>
+</body>
+</html>

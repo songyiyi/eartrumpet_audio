@@ -11,7 +11,10 @@
 🧪 **阶段 0 实验手册：[docs/phase0-protocol.html](docs/phase0-protocol.html)**（材料清单、接线、分步流程、
 无示波器替代方案、故障速查与实验记录表）
 
-三份文档克隆后用浏览器直接打开即可。本仓库其余部分是**软件实现**。
+⚡ **固件烧录指南：[docs/flashing-guide.html](docs/flashing-guide.html)**（编译、烧录、LED 状态
+对照与故障排查）
+
+四份文档克隆后用浏览器直接打开即可。本仓库其余部分是**软件实现**。
 
 ## 当前状态
 
