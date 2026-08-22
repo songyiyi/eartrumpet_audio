@@ -117,14 +117,20 @@ void board_dfsdm_init(void)
     __HAL_RCC_DFSDM1_CLK_ENABLE();
     __HAL_RCC_DMA1_CLK_ENABLE();
 
-    /* PC2 = DFSDM1_CKOUT，PC7 = DFSDM1_DATIN3。
+    /* PC2 = DFSDM1_CKOUT (AF6)，PC7 = DFSDM1_DATIN3 (AF4)。
+     * 两者复用编号不同，必须分开初始化 —— 详见 board.h 的推导说明。
      * 时钟线要求上升/下降时间 ≤13 ns，所以用最高速度档。 */
-    gpio.Pin = BOARD_DFSDM_CKOUT_PIN | BOARD_DFSDM_DATIN_PIN;
     gpio.Mode = GPIO_MODE_AF_PP;
     gpio.Pull = GPIO_NOPULL;
     gpio.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    gpio.Alternate = BOARD_DFSDM_AF;
-    HAL_GPIO_Init(GPIOC, &gpio);
+
+    gpio.Pin = BOARD_DFSDM_CKOUT_PIN;
+    gpio.Alternate = BOARD_DFSDM_CKOUT_AF;
+    HAL_GPIO_Init(BOARD_DFSDM_CKOUT_PORT, &gpio);
+
+    gpio.Pin = BOARD_DFSDM_DATIN_PIN;
+    gpio.Alternate = BOARD_DFSDM_DATIN_AF;
+    HAL_GPIO_Init(BOARD_DFSDM_DATIN_PORT, &gpio);
 
     /* 通道 3：读自身的 DATIN3 引脚，内部时钟二分频、下降沿采样 */
     channel_init(&hdfsdm_ch3, DFSDM1_Channel3,

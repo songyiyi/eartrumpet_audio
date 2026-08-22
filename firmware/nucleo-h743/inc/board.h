@@ -60,11 +60,34 @@
 #define BOARD_DFSDM_CKOUT_PIN   GPIO_PIN_2   /* PC2  DFSDM1_CKOUT */
 #define BOARD_DFSDM_DATIN_PORT  GPIOC
 #define BOARD_DFSDM_DATIN_PIN   GPIO_PIN_7   /* PC7  DFSDM1_DATIN3 */
-#define BOARD_DFSDM_AF          GPIO_AF3_DFSDM1
+
+/* 两个引脚的复用编号**不同**，必须分别初始化。
+ *
+ * DFSDM1 在 AF3/AF4/AF6/AF11 上都有定义，具体用哪个取决于引脚 —— HAL 头
+ * 文件只给编号不给映射，只能查数据手册的复用表。按表中 AF 升序排列，用
+ * 已知锚点反推：
+ *
+ *   PC2：CDSLEEP(AF0) … SPI2_MISO(AF5) → DFSDM1_CKOUT → ULPI_DIR(AF10)
+ *        夹在 AF5 与 AF10 之间，DFSDM 可选项里只有 AF6 符合
+ *
+ *   PC7：TIM3_CH2(AF2) → TIM8_CH2(AF3) → DFSDM1_DATIN3 → I2S3_MCK(AF6)
+ *        紧跟 AF3 之后、AF6 之前，即 AF4
+ *
+ * 写错的症状是**完全没有信号**，而且看不出哪里错。 */
+#define BOARD_DFSDM_CKOUT_AF    GPIO_AF6_DFSDM1
+#define BOARD_DFSDM_DATIN_AF    GPIO_AF4_DFSDM1
 
 /* ST-Link 虚拟串口（Nucleo-144 上固定为 USART3 / PD8 TX / PD9 RX） */
 #define BOARD_VCP_USART         USART3
-#define BOARD_VCP_BAUD          2000000U     /* 2 Mbaud，够跑 48k×2ch×24bit */
+/* 带宽账：48000 × 2 通道 × 3 字节 = 288 kB/s。串口 8N1 每字节占 10 位，
+ * 即需 2.88 Mbit/s。2 Mbaud 不够，必须 4 Mbaud 才有余量。
+ *
+ * STLINK-V3E（Nucleo-H743ZI2 板载）支持；更老的 ST-LINK/V2-1 未必。
+ * 若丢块（板上红灯亮、capture.py 报序号跳变），退路是降到 2000000 并把
+ * 发送改成 16 位——阶段 0 只是采素材，传感器本身也只有 64.5 dB 信噪比。
+ *
+ * 改这里必须同步改 tools/capture.py 的 --baud 默认值，否则收不到数据。 */
+#define BOARD_VCP_BAUD          4000000U
 
 /* 用户 LED（Nucleo-144） */
 #define BOARD_LED_GREEN_PORT    GPIOB
