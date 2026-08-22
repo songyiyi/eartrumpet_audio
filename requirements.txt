@@ -8,3 +8,6 @@ numpy>=1.24
 # 调参界面所需（命令行工具不需要）
 sounddevice>=0.4    # 实时音频回放
 matplotlib>=3.7     # 频响曲线
+
+# 采集固件配套（tools/capture.py 需要，其余工具不需要）
+pyserial>=3.5      # 串口接收

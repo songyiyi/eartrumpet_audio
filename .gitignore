@@ -15,3 +15,13 @@ selfvoice/_native/
 *.dll
 *.so
 *.dylib
+
+# 固件第三方依赖（由 firmware/vendor/fetch.sh 拉取，约 100 MB）
+firmware/vendor/stm32h7xx_hal_driver/
+firmware/vendor/cmsis_device_h7/
+firmware/vendor/cmsis_core/
+firmware/nucleo-h743/build/
+
+# 浏览器"保存完整网页"的产物（docs/ 下有干净的源文件）
+*_files/
+双通道*.html
