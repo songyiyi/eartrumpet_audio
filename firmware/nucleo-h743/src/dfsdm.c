@@ -117,6 +117,17 @@ void board_dfsdm_init(void)
     __HAL_RCC_DFSDM1_CLK_ENABLE();
     __HAL_RCC_DMA1_CLK_ENABLE();
 
+    /* DMA 缓冲放在 D2 SRAM（0x30000000，见链接脚本），而 H7 复位后
+     * **D2 SRAM 的时钟是关着的** —— system_stm32h7xx.c 里的
+     * DATA_IN_D2_SRAM 默认被注释掉，不会替你打开。不开的话，第一次
+     * 访问那块内存就是总线错误（HardFault 或 DMA 传输错误）。
+     *
+     * 这是 H7 最经典的坑之一：链接脚本把位置放对了，却忘了给那块
+     * RAM 供时钟。三块都开，这样链接脚本 288K 的区域内任何位置都可用。 */
+    __HAL_RCC_D2SRAM1_CLK_ENABLE();
+    __HAL_RCC_D2SRAM2_CLK_ENABLE();
+    __HAL_RCC_D2SRAM3_CLK_ENABLE();
+
     /* PC2 = DFSDM1_CKOUT (AF6)，PC7 = DFSDM1_DATIN3 (AF4)。
      * 两者复用编号不同，必须分开初始化 —— 详见 board.h 的推导说明。
      * 时钟线要求上升/下降时间 ≤13 ns，所以用最高速度档。 */

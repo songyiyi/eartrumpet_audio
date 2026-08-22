@@ -141,16 +141,24 @@ def main() -> int:
                 buf.extend(chunk)
 
             # 按 magic 组帧。串口起始时多半会落在帧中间，靠 magic 重新对齐。
-            while len(buf) >= FRAME_BYTES:
+            #
+            # 音频数据里完全可能出现 0x53 0x56（'S' 'V'）这两个字节。若只
+            # 认一个 magic，起始时一旦错锁到数据里的假头，之后每次都按
+            # FRAME_BYTES 步进，会**永久错位**并持续输出垃圾。所以要求
+            # 下一帧的位置也是 magic 才接受 —— 假阳性概率从约 2% 降到 1e-9。
+            while len(buf) >= FRAME_BYTES + 2:
                 i = buf.find(MAGIC)
                 if i < 0:
-                    buf.clear()
+                    del buf[:-1]            # 留末字节，magic 可能被切成两半
                     break
                 if i > 0:
                     del buf[:i]
                     continue
-                if len(buf) < FRAME_BYTES:
+                if len(buf) < FRAME_BYTES + 2:
                     break
+                if buf[FRAME_BYTES:FRAME_BYTES + 2] != MAGIC:
+                    del buf[:1]             # 假头，跳过一字节继续找
+                    continue
 
                 seq, a, b = decode_frame(memoryview(buf)[:FRAME_BYTES])
                 del buf[:FRAME_BYTES]
