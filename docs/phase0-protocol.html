@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>传感器验证实验手册</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --ground:#F3F5F6; --surface:#FFFFFF; --surface-2:#E9EEF0;
+  --ink:#11171A; --ink-soft:#55636A; --ink-faint:#8A969C;
+  --rule:#D8E0E3; --rule-soft:#E7ECEE;
+  --bone:#A96B25; --bone-tint:#F5E9D8;
+  --air:#1F6E80;  --air-tint:#DCEBEF;
+  --warn:#A8382B; --warn-tint:#F7E4E1;
+  --ok:#2E6B45;   --ok-tint:#E0EFE5;
+  --shadow:0 1px 2px rgba(17,23,26,.05);
+  --f-disp:"Barlow Semi Condensed","Noto Sans SC",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono","Noto Sans SC",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1113; --surface:#151B1E; --surface-2:#1D2529;
+  --ink:#E3EAEC; --ink-soft:#94A3A9; --ink-faint:#6A787E;
+  --rule:#273136; --rule-soft:#1E262A;
+  --bone:#DCA25C; --bone-tint:#332818; --air:#5FB9C8; --air-tint:#133037;
+  --warn:#E58370; --warn-tint:#33201C; --ok:#6FBF8E; --ok-tint:#16301F;
+  --shadow:0 1px 2px rgba(0,0,0,.35);}}
+:root[data-theme="dark"]{
+  --ground:#0D1113; --surface:#151B1E; --surface-2:#1D2529;
+  --ink:#E3EAEC; --ink-soft:#94A3A9; --ink-faint:#6A787E;
+  --rule:#273136; --rule-soft:#1E262A;
+  --bone:#DCA25C; --bone-tint:#332818; --air:#5FB9C8; --air-tint:#133037;
+  --warn:#E58370; --warn-tint:#33201C; --ok:#6FBF8E; --ok-tint:#16301F;
+  --shadow:0 1px 2px rgba(0,0,0,.35);}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--f-body);
+  font-size:16px;line-height:1.68;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 28px 90px}
+.prose{max-width:70ch}
+header.mast{padding:60px 0 34px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--f-disp);font-size:13px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-faint);margin:0 0 16px}
+h1{font-weight:600;font-size:clamp(32px,5vw,46px);line-height:1.14;letter-spacing:-.015em;
+  margin:0 0 16px;text-wrap:balance}
+.stand{font-size:18px;line-height:1.6;color:var(--ink-soft);max-width:62ch;margin:0}
+.meta{display:flex;flex-wrap:wrap;margin-top:32px;border-top:1px solid var(--rule)}
+.meta div{flex:1 1 160px;padding:15px 20px 13px 0;border-right:1px solid var(--rule-soft)}
+.meta div:last-child{border-right:0}
+.meta dt{font-family:var(--f-disp);font-size:12px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);margin:0 0 4px}
+.meta dd{margin:0;font-size:15px;font-weight:500}
+nav.toc{margin:36px 0 0;padding:22px 0 4px;border-bottom:1px solid var(--rule)}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 26px}
+nav.toc a{display:flex;gap:12px;align-items:baseline;padding:7px 0;color:var(--ink);
+  text-decoration:none;border-bottom:1px solid transparent}
+nav.toc a:hover,nav.toc a:focus-visible{border-bottom-color:var(--ink-faint)}
+nav.toc .n{font-family:var(--f-mono);font-size:12px;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums}
+section{padding:46px 0 8px;border-top:1px solid var(--rule);margin-top:38px}
+section:first-of-type{border-top:0}
+.sh{display:flex;gap:16px;align-items:baseline;margin-bottom:22px}
+.sh .n{font-family:var(--f-mono);font-size:13px;color:var(--ink-faint);padding-top:4px;
+  font-variant-numeric:tabular-nums}
+h2{font-weight:600;font-size:25px;line-height:1.25;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h3{font-weight:600;font-size:17px;margin:28px 0 10px}
+p{margin:0 0 15px} ul,ol{margin:0 0 15px;padding-left:20px} li{margin-bottom:7px}
+code{font-family:var(--f-mono);font-size:.87em;background:var(--surface-2);padding:1px 5px;border-radius:3px}
+.tbl{overflow-x:auto;margin:0 0 24px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14.5px}
+caption{text-align:left;font-family:var(--f-disp);font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);padding-bottom:10px}
+th{font-family:var(--f-disp);font-size:12.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-soft);text-align:left;padding:0 16px 9px 0;
+  border-bottom:1.5px solid var(--ink);white-space:nowrap}
+td{padding:10px 16px 10px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top;
+  font-variant-numeric:tabular-nums}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:1px solid var(--rule)}
+.mono{font-family:var(--f-mono);font-size:13.5px}
+.note{border-left:3px solid var(--ink-faint);background:var(--surface);padding:15px 20px;
+  margin:0 0 22px;box-shadow:var(--shadow)}
+.note p:last-child{margin-bottom:0}
+.note .lbl{font-family:var(--f-disp);font-size:12px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:block;margin-bottom:6px}
+.note.bone{border-left-color:var(--bone);background:var(--bone-tint)}
+.note.bone .lbl{color:var(--bone)}
+.note.air{border-left-color:var(--air);background:var(--air-tint)}
+.note.air .lbl{color:var(--air)}
+.note.warn{border-left-color:var(--warn);background:var(--warn-tint)}
+.note.warn .lbl{color:var(--warn)}
+.note.ok{border-left-color:var(--ok);background:var(--ok-tint)}
+.note.ok .lbl{color:var(--ok)}
+.steps{list-style:none;margin:0;padding:0}
+.step{display:grid;grid-template-columns:70px 1fr;gap:22px;padding:22px 0;
+  border-top:1px solid var(--rule-soft)}
+.step:first-child{border-top:0}
+.step .tag{font-family:var(--f-mono);font-size:12px;color:var(--ink-faint);padding-top:4px;
+  font-variant-numeric:tabular-nums}
+.step h3{margin:0 0 8px;font-size:17px}
+.check{font-size:14px;padding:10px 14px;background:var(--ok-tint);
+  border-left:2px solid var(--ok);margin-top:10px}
+.check b{font-family:var(--f-disp);letter-spacing:.1em;text-transform:uppercase;
+  font-size:11.5px;color:var(--ok)}
+.blank{color:var(--ink-faint);font-family:var(--f-mono)}
+footer{margin-top:52px;padding-top:24px;border-top:1px solid var(--rule);
+  font-size:13.5px;color:var(--ink-soft)}
+@media (max-width:640px){.wrap{padding:0 18px 70px}
+  .meta div{flex:1 1 100%;border-right:0;border-bottom:1px solid var(--rule-soft);padding-right:0}
+  .meta div:last-child{border-bottom:0}
+  .step{grid-template-columns:1fr;gap:6px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{body{background:#fff}.note{break-inside:avoid}.step{break-inside:avoid}}
+:focus-visible{outline:2px solid var(--air);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">阶段 0 · 实验手册</p>
+  <h1>传感器验证实验手册</h1>
+  <p class="stand">从材料到货到拿到结论的完整流程。目标不是"把板子做出来"，而是用最短路径回答三个问题——这条路能不能出好声音、探头该贴哪里、参数落在哪。</p>
+  <dl class="meta">
+    <div><dt>预计周期</dt><dd>2–3 周（含打样）</dd></div>
+    <div><dt>器件成本</dt><dd>约 ¥400–700</dd></div>
+    <div><dt>阻塞项</dt><dd>V2S200D 引脚编号</dd></div>
+    <div><dt>产出</dt><dd>三个结论 + 一组参数</dd></div>
+  </dl>
+</header>
+
+<nav class="toc">
+  <p class="eyebrow">目录</p>
+  <ol>
+    <li><a href="#s1"><span class="n">01</span><span>要回答的三个问题</span></a></li>
+    <li><a href="#s2"><span class="n">02</span><span>材料清单</span></a></li>
+    <li><a href="#s3"><span class="n">03</span><span>接线</span></a></li>
+    <li><a href="#s4"><span class="n">04</span><span>分步流程</span></a></li>
+    <li><a href="#s5"><span class="n">05</span><span>没有示波器怎么办</span></a></li>
+    <li><a href="#s6"><span class="n">06</span><span>预期现象与故障速查</span></a></li>
+    <li><a href="#s7"><span class="n">07</span><span>录音素材与调参</span></a></li>
+    <li><a href="#s8"><span class="n">08</span><span>实验记录表</span></a></li>
+  </ol>
+</nav>
+
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>要回答的三个问题</h2></div>
+  <div class="prose">
+    <p>软件侧已经全部就绪——设计方案、参考实现、固件（与 Python 逐位一致、可为 Cortex-M7 编译）、实时调参界面。但这一切都建立在<strong>一个未经验证的假设</strong>上：这条路真的能出好声音。</p>
+    <p>本阶段的唯一目的就是验证它。做板子只是手段。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>问题</th><th>怎么算回答了</th><th>影响</th></tr></thead>
+      <tbody>
+        <tr><td><strong>概念是否成立</strong></td><td>有没有某组参数能让处理声与自然自听"融"起来</td><td>决定项目是否继续</td></tr>
+        <tr><td><strong>最佳佩戴位置</strong></td><td>乳突／下颌／喉部三者中哪个骨导信号最干净、中频最完整</td><td>决定头戴机械结构</td></tr>
+        <tr><td><strong>参数落点</strong></td><td>调参界面上三个滑块的最终位置</td><td>成为固件默认值</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">最大的单点风险</span>
+    <p>皮肤表面测到的振动，与耳蜗实际感受到的骨导声之间，隔着一个<strong>无法直接测量的颅骨传递函数</strong>。能逼近到什么程度只有实验能回答。所以这一步必须在投入任何产品级硬件开发之前完成。</p>
+  </div>
+</section>
+
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>材料清单</h2></div>
+
+  <div class="tbl">
+    <table>
+      <caption>A · 传感器与主控</caption>
+      <thead><tr><th>物料</th><th>数量</th><th>参考价</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">V2S200D</td><td>5</td><td>$4.09/片</td><td>多买是因为 6-TLGA 焊接会报废，且要试不同位置</td></tr>
+        <tr><td class="mono">IM69D130</td><td>5</td><td>$2.81 起</td><td>同上</td></tr>
+        <tr><td class="mono">NUCLEO-H743ZI2</td><td>1</td><td>¥200–250</td><td>引脚全引出，<strong>板载 ST-Link</strong>（以后烧自制板也用它）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">便宜替代</span>
+    <p>WeAct MiniSTM32H750（¥60–100）同样有 DFSDM。但<strong>买前必须查它 GitHub 上的原理图</strong>，确认 <code>DFSDM_CKOUT</code> 与 <code>DFSDM1_DATINx</code> 没被板载 TFT／SD 卡／摄像头接口占用，且已引到排针。省下的钱可能要用调试时间来还。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>B · PCB 与无源件</caption>
+      <thead><tr><th>物料</th><th>数量</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>PCB 打样</td><td>5 套</td><td>两块小板<strong>拼板</strong>下单，约 ¥30–50。气导板需开 ⌀0.8 mm 声孔</td></tr>
+        <tr><td>钢网</td><td>1</td><td><strong>必须</strong>——6-TLGA 手工点锡膏几乎不可能</td></tr>
+        <tr><td class="mono">100 nF X7R 0402</td><td>20</td><td>C1／C3，紧靠 VDD，手册强制要求</td></tr>
+        <tr><td class="mono">1 µF X7R 0603</td><td>10</td><td>C2 体电容</td></tr>
+        <tr><td class="mono">100 Ω 0402</td><td>10</td><td>R1／R2 端接，装在开发板一侧</td></tr>
+        <tr><td>中温无铅锡膏</td><td>1 罐</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note bone">
+    <span class="lbl">强烈建议改用嘉立创贴片</span>
+    <p>6-TLGA 是底部端子封装，<strong>焊盘在封装底下，焊完无法目视检查</strong>。客供物料的设置费约几百元，但把整类焊接风险归零。自己焊的报废率和排查成本通常超过这个数。</p>
+    <p style="margin-top:10px">⚠️ 两颗器件<strong>立创商城大概率无货</strong>，下单前先确认，否则贴片只能走客供。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>C · 连接与机械</caption>
+      <thead><tr><th>物料</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>屏蔽四芯线 ~1.5 m</td><td>传 3V3／GND／CLK／DATA。<strong>必须屏蔽</strong>——3 MHz 时钟走一米线是本设计最大的信号完整性风险</td></tr>
+        <tr><td>连接器 × 4</td><td>1 mm 间距 FPC 或 4 脚排针</td></tr>
+        <tr><td>杜邦线若干</td><td>接到 Nucleo 排针</td></tr>
+        <tr><td><strong>封闭式监听耳机</strong></td><td><strong>不可省</strong>——开放式或音箱会让自然自听漏进来，污染 A／B 判断</td></tr>
+        <tr><td>发带／硅胶垫／医用胶带</td><td>骨导探头要<strong>恒压贴合</strong>，先用这些凑合试三个位置</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>D · 工具</caption>
+      <thead><tr><th>工具</th><th>必要性</th></tr></thead>
+      <tbody>
+        <tr><td><strong>USB 逻辑分析仪</strong></td><td><strong>强烈建议</strong>，¥30–60。见第 05 节——它比示波器更适合这个任务，且便宜十倍</td></tr>
+        <tr><td>万用表</td><td>必备</td></tr>
+        <tr><td>热风台、镊子、助焊剂</td><td>自己贴装才需要</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">现在不要买</span>
+    <p>PCM5102A、输出变压器、THAT1646、XLR 接头、电位器、锂电池与充电管理、外壳——这些是第二阶段（腰包主板）才需要的。若本阶段结果导致方案调整（例如全指向麦啸叫余量不足要换定向咪头），这批料会白买。</p>
+  </div>
+</section>
+
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>接线</h2></div>
+  <div class="prose">
+    <p>Nucleo-144 的 Morpho 排针（CN11／CN12）引出了 STM32 的<strong>全部信号</strong>，所以引脚不会不够，问题只在于避开板载外设占用的脚。</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>信号</th><th>两块传感器板</th><th>Nucleo 引脚</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td>3V3</td><td class="mono">J1.1 / J2.1</td><td class="mono">3V3</td><td>板上直接取</td></tr>
+        <tr><td>GND</td><td class="mono">J1.2 / J2.2</td><td class="mono">GND</td><td><strong>多接两根</strong>，别只接一根</td></tr>
+        <tr><td>PDM_CLK</td><td class="mono">J1.3 / J2.3</td><td class="mono">PC2</td><td>DFSDM1_CKOUT，串 100 Ω 靠 Nucleo 侧</td></tr>
+        <tr><td>PDM_DATA</td><td class="mono">J1.4 / J2.4</td><td class="mono">PC7</td><td>DFSDM1_DATIN3，串 100 Ω 靠 Nucleo 侧</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p><strong>两块板并联接同一组 CLK 与 DATA</strong>——这正是"两颗传感器共用一根数据线、靠时钟极性分左右"的接法，也是硬件级采样同步的来源。</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">两条容易忽略的</span>
+    <p><strong>引脚以 CubeMX 为准。</strong><code>PC2</code> 支持 CKOUT、<code>PC7</code> 支持 DATIN3 是查证过的，但 Nucleo-H743ZI2 上以太网占用了不少引脚（<code>PC1</code> 就是以太网 MDC）。CubeMX 会直接标出冲突并给可用备选，比查复用表快得多。</p>
+    <p style="margin-top:10px"><strong>台面调试先用 10–20 cm 短线</strong>，不要一上来就接一米线缆。先把信号完整性这个变量排除掉；采集通了再换长线，那时出问题就知道是线的锅。</p>
+  </div>
+</section>
+
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>分步流程</h2></div>
+  <div class="prose">
+    <p>原则：<strong>每一步只引入一个新变量</strong>。这样出问题时能立刻定位，而不是面对一堆可能性。</p>
+  </div>
+
+  <ol class="steps">
+    <li class="step">
+      <span class="tag">步骤 0</span>
+      <div>
+        <h3>到货检查（动手焊之前）</h3>
+        <p><strong>先确认 V2S200D 的引脚编号已到手。</strong>这是唯一的阻塞项——手册没拿到就别贴片。6-TLGA 焊上去没有任何补救余地。获取途径：<code>knowles.com/V2S</code>，或向经销商索取 User Guide。</p>
+        <p>收到 PCB 后检查三件事：气导板<strong>声孔是否存在且约 ⌀0.8 mm</strong>、孔周围<strong>有没有被阻焊或铺铜堵住</strong>、焊盘是不是<strong>阻焊定义（SMD）</strong>类型。</p>
+        <div class="check"><b>验证点</b> — 三项全对。错一项就要重新打样，早发现早止损。</div>
+      </div>
+    </li>
+
+    <li class="step">
+      <span class="tag">步骤 1</span>
+      <div>
+        <h3>只测开发板，不接任何传感器</h3>
+        <p>这一步把<strong>"时钟对不对"和"传感器好不好"分开</strong>。跳过它的话，接上传感器不工作时你会误判成器件坏了。</p>
+        <ol>
+          <li>烧个流水灯，确认工具链与下载器通</li>
+          <li>CubeMX 配好 DFSDM，生成代码</li>
+          <li>测 <code>PC2</code>（DFSDM_CKOUT）</li>
+        </ol>
+        <div class="check"><b>验证点</b> — 3.072 MHz 方波，占空比 48–52%（手册对 ≥2.9 MHz 有此硬要求）。没有仪器时的测法见第 05 节。</div>
+      </div>
+    </li>
+
+    <li class="step">
+      <span class="tag">步骤 2</span>
+      <div>
+        <h3>贴装传感器板</h3>
+        <p>钢网刷锡膏 → 放件 → 热风或加热台回流。回流次数 ≤3 次，峰值 260 °C。</p>
+        <p>焊完用万用表查：<strong>VDD 与 GND 不短路</strong>、四条网络各自通断正常。焊点目视检查不了，这是唯一的电气检查手段。</p>
+        <div class="check"><b>验证点</b> — 无短路，四网络通。</div>
+      </div>
+    </li>
+
+    <li class="step">
+      <span class="tag">步骤 3</span>
+      <div>
+        <h3>先接一颗，不要两颗一起</h3>
+        <p><strong>先接气导麦（IM69D130）</strong>，因为它最容易验证——对着说话就该有反应。采到数据后存成 WAV 听一遍，确认无误再接骨导那颗。</p>
+        <div class="check"><b>验证点</b> — <code>PDM_DATA</code> 安静时是规律的 0101 交替，说话时密度明显变化。</div>
+      </div>
+    </li>
+
+    <li class="step">
+      <span class="tag">步骤 4</span>
+      <div>
+        <h3>双通道与敲击测试</h3>
+        <p>两颗都接上后，<strong>用手指轻敲骨导传感器，看哪个声道有信号</strong>。不要靠推理判断 SELECT 高低对应左还是右——直接测。</p>
+        <p>方案约定 <strong>左＝骨导、右＝气导</strong>（与评估套件一致）。若实测相反，<strong>改固件比改硬件容易</strong>。</p>
+        <div class="check"><b>验证点</b> — 两声道内容不同；敲骨导时只有一个声道跳。</div>
+      </div>
+    </li>
+
+    <li class="step">
+      <span class="tag">步骤 5</span>
+      <div>
+        <h3>录素材（这才是真正的实验）</h3>
+        <p>戴上传感器同时录制两路，<strong>三个佩戴位置各录一组</strong>。每次换位置都用医用胶带或发带压紧，保持恒压贴合——接触松紧对信号影响极大，这也正是要试的东西。</p>
+        <div class="check"><b>验证点</b> — 三个位置 × 四类素材，共 12 段录音，见第 07 节清单。</div>
+      </div>
+    </li>
+
+    <li class="step">
+      <span class="tag">步骤 6</span>
+      <div>
+        <h3>调参与判定</h3>
+        <p><code>python tools/tune_gui.py 你的录音.wav</code></p>
+        <p>戴封闭式耳机，<strong>边说话边听处理后的信号</strong>。方法与判据见第 07 节。</p>
+        <div class="check"><b>验证点</b> — 第 01 节那三个问题各有一个明确答案。</div>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>没有示波器怎么办</h2></div>
+  <div class="prose">
+    <p>其实这个场景下<strong>示波器不是最优工具</strong>——你要看的是数字信号，不是波形细节。三条替代路径，按性价比排序。</p>
+  </div>
+
+  <div class="note ok">
+    <span class="lbl">首选 · USB 逻辑分析仪，¥30–60</span>
+    <p>最常见的 8 通道 24 MHz 款（Saleae 兼容克隆）就够。3.072 MHz 需要至少 8 MHz 采样才看得清，<strong>24 MHz 绰绰有余</strong>。配免费的 <strong>PulseView（sigrok）</strong>，能看时钟波形、量占空比、看数据活动，还有 I²S／PDM 解码插件。</p>
+    <p style="margin-top:10px">对数字调试它比示波器更好用，且便宜十倍以上。<strong>如果只买一件工具，买这个。</strong></p>
+  </div>
+
+  <h3>次选 · 万用表（免费，但真能用）</h3>
+  <div class="prose">
+    <p>用<strong>直流电压档测方波，读到的是平均值</strong>：</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>测点</th><th>正常读数</th><th>异常说明</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">PDM_CLK</td><td class="mono">≈1.65 V</td><td>3.3 V＝卡在高电平；0 V＝没输出</td></tr>
+        <tr><td class="mono">PDM_DATA</td><td class="mono">≈1.65 V</td><td>0 V 或 3.3 V＝传感器没在驱动</td></tr>
+        <tr><td>传感器 VDD</td><td class="mono">3.3 V</td><td>明显偏低＝供电或短路问题</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>1.65 V 是 3.3 V 的一半，因为时钟占空比 50%、PDM 静音时是 0101 交替。这个方法<strong>区分不了频率对不对，但能区分活着还是死了</strong>——早期调试八成的问题就是后者。</p>
+  </div>
+
+  <h3>第三 · 把 STM32 自己当测量仪器</h3>
+  <div class="prose">
+    <p>你手上已经有一块 480 MHz 的仪器。两个用法：</p>
+    <ul>
+      <li><strong>测时钟频率</strong>：把 <code>PC2</code> 用杜邦线接到另一个引脚，配一个定时器做外部计数，数一秒的边沿数——就是一台频率计</li>
+      <li><strong>测信号活性</strong>：在采集固件里加串口诊断输出</li>
+    </ul>
+  </div>
+
+  <div class="note air">
+    <span class="lbl">串口诊断输出示例</span>
+    <p class="mono" style="font-size:13px;line-height:1.9">CH0 骨导　1密度 49.8%　RMS −62.3 dBFS<br>CH1 气导　1密度 50.1%　RMS −48.7 dBFS</p>
+    <p style="margin-top:10px">静音时 1 的密度应在 <strong>50% 附近</strong>（这正是 PDM 的定义）。说话时密度偏离、RMS 上升。<strong>敲一下骨导传感器看哪个通道的 RMS 跳</strong>——步骤 4 的敲击测试完全可以靠这个完成，不需要任何仪器。</p>
+  </div>
+</section>
+
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>预期现象与故障速查</h2></div>
+
+  <div class="tbl">
+    <table>
+      <caption>这些现象是正常的，别误判</caption>
+      <thead><tr><th>现象</th><th>为什么正常</th></tr></thead>
+      <tbody>
+        <tr><td><strong>骨导通道信号明显很弱</strong></td><td>Knowles 明确说明它需要补约 <strong>+20 dB</strong> 才能对齐普通麦克风电平。这是设计预期，不是焊坏了</td></tr>
+        <tr><td>骨导几乎没有高频</td><td>±3 dB 带宽只有 <strong>4 kHz</strong>，且 2.5 kHz 以上原厂就说明需要摆位优化配合软件均衡</td></tr>
+        <tr><td>骨导有低频隆隆声</td><td>呼吸与皮肤摩擦，处理链里的 80 Hz 高通就是为它准备的</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>这些是真问题</caption>
+      <thead><tr><th>现象</th><th>先查什么</th></tr></thead>
+      <tbody>
+        <tr><td>完全没有数据</td><td>时钟有没有输出 → 供电是否 3.3 V → SELECT 是否悬空</td></tr>
+        <tr><td>两个声道内容一样</td><td>两颗的 SELECT 接成了同一电平，必须一高一低</td></tr>
+        <tr><td>有信号但底噪很大</td><td>100 nF 是否紧靠 VDD 引脚 → 地是否完整 → 是否用了开关电源供电</td></tr>
+        <tr><td>间歇性杂音、时好时坏</td><td><strong>先查供电电压是不是 1.8 V</strong>。见下方说明</td></tr>
+        <tr><td>低频响应很差</td><td>气导板声孔是否被锡膏堵住或密封不良</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">必须用 3.3 V，不能用 1.8 V</span>
+    <p>两颗传感器都支持 1.62／1.65 V 起，很容易顺手选 1.8 V。<strong>那样会出事</strong>：IM69D130 的输出高电平 V<sub>OH</sub> 最低为 <code>0.7 × VDD</code>，1.8 V 时只有 1.26 V，而 STM32H7 的 3.3 V I/O 逻辑高门限约 2.31 V——<strong>够不到</strong>。</p>
+    <p style="margin-top:10px">这类故障不会干脆地不工作，而是表现为<strong>间歇性杂音</strong>，极难定位。两颗都跑 3.3 V（V2S200D 上限 3.3 V，IM69D130 上限 3.6 V）。</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">MEMS 工艺禁忌</span>
+    <p><strong>不能超声清洗、不能水洗。</strong>清洗液进入声腔会永久损坏振膜，而且损坏后表现为"能工作但音质差"，几乎无法判断。若板厂默认工序含清洗，下单时必须特别注明；手工焊后也别用洗板水冲。</p>
+  </div>
+</section>
+
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>录音素材与调参</h2></div>
+
+  <h3>素材清单</h3>
+  <div class="prose">
+    <p>三个佩戴位置 × 四类素材 = 12 段。每段 15–30 秒即可。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>位置</th><th>素材</th><th>目的</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="4"><strong>乳突</strong>（耳后骨突）<br><strong>下颌骨</strong><br><strong>喉部</strong></td><td>正常说话</td><td>基准</td></tr>
+        <tr><td>轻声说话</td><td>看信噪比是否够</td></tr>
+        <tr><td>唱一段</td><td>动态余量，是否削波</td></tr>
+        <tr><td>"四十四只石狮子"</td><td>齿音，考察高频与清晰度</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>调参方法</h3>
+  <div class="note warn">
+    <span class="lbl">最容易毁掉判断的坑</span>
+    <p><strong>响的那个总是听起来更好。</strong>混合比从 0 推到 1 时输出峰值会涨 3–4 dB（骨导路有 +20 dB 归一化增益）。不补偿的话，你会误以为"骨导多一点更好听"，其实只是听到了更响。</p>
+    <p style="margin-top:10px"><strong>每次改完混合比，先用输出电平滑块把峰值拉回原读数，再判断音色。</strong>A／B 旁通同理。</p>
+  </div>
+
+  <div class="prose">
+    <p>调参顺序（参数之间有交互，乱调会陷入死循环）：</p>
+    <ol>
+      <li><strong>先关限幅、设好电平</strong>——限幅会压掉动态干扰音色判断。让峰值落在 −6 到 −3 dBFS</li>
+      <li><strong>定混合比</strong>——最粗、影响最大。从 0.5 开始（Békésy 的等贡献结论），先扫出"明显太薄"和"明显太闷"两个边界，再二分逼近</li>
+      <li><strong>调音色</strong>——混合比定了之后再细修 EQ 曲线</li>
+      <li><strong>回头微调混合比</strong>——音色变了最佳混合比会漂移，迭代两三轮收敛</li>
+    </ol>
+  </div>
+
+  <div class="note bone">
+    <span class="lbl">判据不是"好不好听"</span>
+    <p>而是<strong>"像不像你自己听到的自己"</strong>——这两件事经常打架，最像的往往并不最好听。</p>
+    <p style="margin-top:10px">具体做法：戴<strong>封闭式耳机</strong>，边说话边听处理后的信号。参数对了，处理声会和你的自然自听<strong>"融"在一起</strong>，感觉只是变响了；不对则能听到明显的"两个人在说话"的分离感或梳状染色。<strong>那个分离感消失的位置就是答案。</strong></p>
+    <p style="margin-top:10px">这个判据比"回忆刚才的声音"可靠得多——人对音色的听觉记忆只有几秒，且极不稳定。</p>
+  </div>
+</section>
+
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>实验记录表</h2></div>
+  <div class="prose"><p>建议打印出来边做边填。位置对比那一栏是回答第二个问题的直接依据。</p></div>
+
+  <div class="tbl">
+    <table>
+      <caption>硬件验证</caption>
+      <thead><tr><th>检查项</th><th>预期</th><th>实测</th></tr></thead>
+      <tbody>
+        <tr><td>CKOUT 频率</td><td class="mono">3.072 MHz</td><td class="blank">____________</td></tr>
+        <tr><td>CKOUT 占空比</td><td class="mono">48–52 %</td><td class="blank">____________</td></tr>
+        <tr><td>传感器 VDD</td><td class="mono">3.3 V</td><td class="blank">____________</td></tr>
+        <tr><td>静音时 1 密度 CH0／CH1</td><td class="mono">≈50 %</td><td class="blank">____________</td></tr>
+        <tr><td>敲击骨导 → 哪个声道跳</td><td class="mono">左（约定）</td><td class="blank">____________</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>佩戴位置对比</caption>
+      <thead><tr><th>位置</th><th>骨导 RMS</th><th>底噪／杂音</th><th>中频完整度</th><th>主观排名</th></tr></thead>
+      <tbody>
+        <tr><td>乳突</td><td class="blank">________</td><td class="blank">________</td><td class="blank">________</td><td class="blank">____</td></tr>
+        <tr><td>下颌骨</td><td class="blank">________</td><td class="blank">________</td><td class="blank">________</td><td class="blank">____</td></tr>
+        <tr><td>喉部</td><td class="blank">________</td><td class="blank">________</td><td class="blank">________</td><td class="blank">____</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <caption>参数落点（最佳位置下）</caption>
+      <thead><tr><th>参数</th><th>数值</th></tr></thead>
+      <tbody>
+        <tr><td>混合比滑块</td><td class="blank">____________</td></tr>
+        <tr><td>音色滑块</td><td class="blank">____________</td></tr>
+        <tr><td>延迟模式（natural／coherent）</td><td class="blank">____________</td></tr>
+        <tr><td>能否"融"起来（是／否／勉强）</td><td class="blank">____________</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note ok">
+    <span class="lbl">拿到这三张表之后</span>
+    <p>如果<strong>能"融"</strong>：概念成立，把参数写进固件默认值，进入第二阶段（腰包主板）。</p>
+    <p style="margin-top:10px">如果<strong>怎么调都融不起来</strong>：先别下结论说方案不成立——换另一个佩戴位置重试，并检查骨导信号本身是否干净。只有三个位置都试过、信号质量确认没问题，才谈得上"概念不成立"。</p>
+  </div>
+</section>
+
+<footer>
+  <p>本手册的器件参数取自 Infineon IM69D130 数据手册 v1.0 与 Knowles《Voice Vibration Sensor Overview》v1.0；引脚复用信息取自 STM32H743 数据手册与 Nucleo-144 用户手册。</p>
+  <p style="margin-top:14px;color:var(--ink-faint)">V2S200D 引脚编号尚未取得，标注为阻塞项。实测前请以原厂手册为准。</p>
+</footer>
+
+</div>
+</body>
+</html>
